@@ -72,7 +72,7 @@ create index coins_photos_item_idx on coins_photos (item_id);
 create table coins_prices (
   id               uuid primary key default gen_random_uuid(),
   numista_issue_id integer not null references coins_issues (numista_issue_id) on delete cascade,
-  grade            text not null,
+  grade            text not null check (grade in ('g','vg','f','vf','xf','au','unc')),
   currency         text not null,
   price            numeric not null,
   fetched_at       timestamptz not null default now()
@@ -127,8 +127,9 @@ create policy "fotos de ejemplares propios" on coins_photos
 
 create policy "precios legibles por autenticados" on coins_prices
   for select to authenticated using (true);
-create policy "precios insertables por autenticados" on coins_prices
-  for insert to authenticated with check (true);
+-- Sin política de insert/update/delete para authenticated: el histórico de
+-- precios lo escribe únicamente la Edge Function con la service-role key,
+-- que evita RLS por completo. Los clientes no pueden insertar precios.
 
 -- El rol anónimo no tiene política alguna sobre estas tablas: no lee nada.
 
