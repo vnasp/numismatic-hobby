@@ -1,4 +1,4 @@
-import type { NumistaReference } from './types'
+import type { NumistaReference } from './types.ts'
 
 /** ID del catálogo Krause (KM) en Numista. */
 export const KM_CATALOGUE_ID = 3
