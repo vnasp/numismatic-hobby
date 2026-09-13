@@ -41,18 +41,27 @@ Deno.serve(async (req) => {
     const body = await req.json()
 
     switch (body.op) {
-      case 'searchByKm':
-        return json(await api.searchByKm(String(body.km)))
+      case 'searchByKm': {
+        const km = typeof body.km === 'string' ? body.km.trim() : ''
+        if (!km) return json({ error: 'El parámetro km es requerido' }, 400)
+        return json(await api.searchByKm(km))
+      }
 
-      case 'search':
-        return json(await api.search({
-          issuer: body.issuer,
-          q: body.q,
-          year: body.year,
-        }))
+      case 'search': {
+        const issuer = typeof body.issuer === 'string' ? body.issuer.trim() : ''
+        const q = typeof body.q === 'string' ? body.q.trim() : ''
+        const year = typeof body.year === 'string' ? body.year.trim() : ''
+        if (!issuer && !q && !year) {
+          return json({ error: 'Se requiere al menos uno de: issuer, q, year' }, 400)
+        }
+        return json(await api.search({ issuer, q, year }))
+      }
 
       case 'getType': {
         const typeId = Number(body.typeId)
+        if (!Number.isInteger(typeId) || typeId <= 0) {
+          return json({ error: 'typeId debe ser un entero positivo' }, 400)
+        }
         const cached = await readCachedType(db, typeId)
         if (cached) return json({ ...cached, fromCache: true })
 
