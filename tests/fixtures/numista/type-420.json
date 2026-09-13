@@ -1,0 +1,29 @@
+{
+  "id": 420,
+  "url": "https://en.numista.com/420",
+  "title": "5 Cents - Victoria",
+  "issuer": { "code": "canada", "name": "Canada" },
+  "min_year": 1858,
+  "max_year": 1901,
+  "shape": "Round",
+  "composition": { "text": "Silver (.925) (.925 silver .075 copper)" },
+  "obverse": {
+    "description": "Head of the very young Queen Victoria wearing a laurel wreath, facing left.",
+    "picture": "https://en.numista.com/catalogue/photos/canada/1009-original.jpg",
+    "thumbnail": "https://en.numista.com/catalogue/photos/canada/1009-180.jpg"
+  },
+  "reverse": {
+    "description": "The face value surrounded by two maple boughs and the crown of Queen Victoria",
+    "picture": "https://en.numista.com/catalogue/photos/canada/1010-original.jpg",
+    "thumbnail": "https://en.numista.com/catalogue/photos/canada/1010-180.jpg"
+  },
+  "references": [
+    { "catalogue": { "id": 3, "code": "KM" }, "number": "2" },
+    { "catalogue": { "id": 24, "code": "Schön" }, "number": "2" }
+  ],
+  "weight": 1.167,
+  "size": 15.494,
+  "thickness": 0.7,
+  "category": "coin",
+  "type": "Standard circulation coin"
+}
