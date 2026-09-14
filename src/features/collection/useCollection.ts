@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase/client'
 import type { GradeCode } from '../../lib/grades'
+import { mapPostgresError } from '../../lib/postgresErrorMessage'
 
 export interface CollectionEntry {
   id: string
@@ -38,7 +39,16 @@ export function useCollection() {
         `)
         .order('created_at', { ascending: false })
 
-      if (error) throw new Error(`No se pudo cargar la colección: ${error.message}`)
+      if (error) {
+        // El detalle técnico (en inglés, con internals de Postgres) queda
+        // disponible para depurar, pero nunca se muestra a la usuaria.
+        console.error('useCollection: error al leer coins_items', error)
+        throw new Error(
+          mapPostgresError(error, {
+            fallback: 'No se pudo cargar la colección. Inténtalo de nuevo en unos minutos.',
+          }),
+        )
+      }
 
       return (data as unknown as Row[]).map((row) => ({
         id: row.id,
