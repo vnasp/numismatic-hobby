@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { NumistaType, NumistaIssue } from '../../../shared/numista/types'
 import { NumistaQuotaError } from '../../../shared/numista/errors'
 import { getTypeWithIssues } from '../../lib/numista/proxyClient'
@@ -13,6 +13,7 @@ import { saveItem } from './saveItem'
 
 export function AddCoinPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const search = useSearchByKm()
   const [selected, setSelected] = useState<
     { type: NumistaType; issues: NumistaIssue[] } | null
@@ -34,7 +35,13 @@ export function AddCoinPage() {
         numistaIssueId: issueId,
         ...values,
       }),
-    onSuccess: () => navigate('/'),
+    onSuccess: () => {
+      // La colección (queryKey ['collection']) puede seguir cacheada de una
+      // visita anterior a "/": se invalida para que la moneda recién
+      // guardada aparezca sin depender de un refresco manual.
+      queryClient.invalidateQueries({ queryKey: ['collection'] })
+      navigate('/')
+    },
   })
 
   const error = search.error ?? loadType.error ?? save.error
