@@ -5,7 +5,9 @@ import { NumistaError } from '../../../shared/numista/errors.ts'
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, content-type',
+  // supabase-js envía siempre `apikey` y `x-client-info` además del token:
+  // omitirlos aquí hace que el navegador bloquee la petición en el preflight.
+  'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-client-info',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
