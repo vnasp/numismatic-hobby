@@ -2,11 +2,18 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase/client'
 
+export interface SignUpResult {
+  /** true si Supabase creó la cuenta pero aún no hay sesión activa: el proyecto
+   * tiene "Confirm email" habilitado y el usuario debe confirmar desde su correo
+   * antes de poder iniciar sesión. */
+  needsEmailConfirmation: boolean
+}
+
 interface AuthValue {
   session: Session | null
   loading: boolean
   signIn: (email: string, password: string) => Promise<void>
-  signUp: (email: string, password: string) => Promise<void>
+  signUp: (email: string, password: string) => Promise<SignUpResult>
   signOut: () => Promise<void>
 }
 
@@ -30,9 +37,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error
   }
 
-  async function signUp(email: string, password: string) {
-    const { error } = await supabase.auth.signUp({ email, password })
+  async function signUp(email: string, password: string): Promise<SignUpResult> {
+    const { data, error } = await supabase.auth.signUp({ email, password })
     if (error) throw error
+    // `signUp` does NOT throw when email confirmation is enabled on the project:
+    // it resolves successfully with a user but `data.session === null` until the
+    // user confirms via the link in their email. Callers need this to tell the
+    // two outcomes apart.
+    return { needsEmailConfirmation: data.session === null }
   }
 
   async function signOut() {

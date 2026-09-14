@@ -55,6 +55,7 @@ export function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [info, setInfo] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   const isSignUp = mode === 'signUp'
@@ -62,10 +63,18 @@ export function LoginPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
+    setInfo(null)
     setSubmitting(true)
     try {
       if (isSignUp) {
-        await signUp(email, password)
+        const result = await signUp(email, password)
+        if (result.needsEmailConfirmation) {
+          setInfo(
+            'Creamos tu cuenta. Revisa tu correo y confirma tu cuenta antes de iniciar sesión.'
+          )
+        }
+        // Si no necesita confirmación, Supabase ya dejó la sesión activa y
+        // el resto de la app reacciona al cambio de `session` normalmente.
       } else {
         await signIn(email, password)
       }
@@ -79,6 +88,7 @@ export function LoginPage() {
   function toggleMode() {
     setMode((m) => (m === 'signIn' ? 'signUp' : 'signIn'))
     setError(null)
+    setInfo(null)
   }
 
   return (
@@ -112,6 +122,7 @@ export function LoginPage() {
       <button type="button" onClick={toggleMode}>
         {isSignUp ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Crear cuenta'}
       </button>
+      {info && <p role="status">{info}</p>}
       {error && <p role="alert">{error}</p>}
     </main>
   )

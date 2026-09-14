@@ -12,6 +12,7 @@ vi.mock('./AuthProvider', () => ({
 beforeEach(() => {
   signIn.mockReset()
   signUp.mockReset()
+  signUp.mockResolvedValue({ needsEmailConfirmation: false })
 })
 
 test('inicia sesión con correo y contraseña', async () => {
@@ -62,6 +63,45 @@ test('muestra un mensaje claro cuando el correo ya está registrado', async () =
   await user.click(screen.getByRole('button', { name: /crear cuenta/i }))
 
   expect(await screen.findByRole('alert')).toHaveTextContent(/ya existe una cuenta/i)
+})
+
+test('signUp sin sesión (confirmación de correo pendiente) muestra aviso explícito', async () => {
+  const user = userEvent.setup()
+  signUp.mockResolvedValueOnce({ needsEmailConfirmation: true })
+  render(<LoginPage />)
+
+  await user.click(screen.getByRole('button', { name: /crear cuenta/i }))
+  await user.type(screen.getByLabelText(/correo/i), 'nueva@ejemplo.cl')
+  await user.type(screen.getByLabelText(/contraseña/i), 'secreta123')
+  await user.click(screen.getByRole('button', { name: /crear cuenta/i }))
+
+  expect(await screen.findByRole('status')).toHaveTextContent(/confirma tu cuenta/i)
+})
+
+test('signUp con sesión activa (confirmación deshabilitada) no muestra el aviso de confirmación', async () => {
+  const user = userEvent.setup()
+  signUp.mockResolvedValueOnce({ needsEmailConfirmation: false })
+  render(<LoginPage />)
+
+  await user.click(screen.getByRole('button', { name: /crear cuenta/i }))
+  await user.type(screen.getByLabelText(/correo/i), 'nueva@ejemplo.cl')
+  await user.type(screen.getByLabelText(/contraseña/i), 'secreta123')
+  await user.click(screen.getByRole('button', { name: /crear cuenta/i }))
+
+  expect(signUp).toHaveBeenCalledWith('nueva@ejemplo.cl', 'secreta123')
+  expect(screen.queryByRole('status')).not.toBeInTheDocument()
+})
+
+test('muestra un mensaje claro cuando el correo no está confirmado al iniciar sesión', async () => {
+  const user = userEvent.setup()
+  signIn.mockRejectedValueOnce({ name: 'AuthApiError', code: 'email_not_confirmed', status: 400 })
+  render(<LoginPage />)
+
+  await user.type(screen.getByLabelText(/correo/i), 'nueva@ejemplo.cl')
+  await user.type(screen.getByLabelText(/contraseña/i), 'secreta123')
+  await user.click(screen.getByRole('button', { name: /iniciar sesión/i }))
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(/confirmar tu correo/i)
 })
 
 test('no muestra un mensaje genérico para un error no reconocido', async () => {
