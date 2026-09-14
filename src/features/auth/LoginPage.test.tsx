@@ -3,27 +3,77 @@ import userEvent from '@testing-library/user-event'
 import { LoginPage } from './LoginPage'
 
 const signIn = vi.fn()
+const signUp = vi.fn()
 
 vi.mock('./AuthProvider', () => ({
-  useAuth: () => ({ session: null, loading: false, signIn, signOut: vi.fn() }),
+  useAuth: () => ({ session: null, loading: false, signIn, signUp, signOut: vi.fn() }),
 }))
 
-test('envía el correo al pedir el enlace de acceso', async () => {
-  const user = userEvent.setup()
-  render(<LoginPage />)
-
-  await user.type(screen.getByLabelText(/correo/i), 'coleccionista@ejemplo.cl')
-  await user.click(screen.getByRole('button', { name: /enviar enlace/i }))
-
-  expect(signIn).toHaveBeenCalledWith('coleccionista@ejemplo.cl')
+beforeEach(() => {
+  signIn.mockReset()
+  signUp.mockReset()
 })
 
-test('confirma el envío del enlace', async () => {
+test('inicia sesión con correo y contraseña', async () => {
   const user = userEvent.setup()
   render(<LoginPage />)
 
   await user.type(screen.getByLabelText(/correo/i), 'coleccionista@ejemplo.cl')
-  await user.click(screen.getByRole('button', { name: /enviar enlace/i }))
+  await user.type(screen.getByLabelText(/contraseña/i), 'secreta123')
+  await user.click(screen.getByRole('button', { name: /iniciar sesión/i }))
 
-  expect(await screen.findByText(/revisa tu correo/i)).toBeInTheDocument()
+  expect(signIn).toHaveBeenCalledWith('coleccionista@ejemplo.cl', 'secreta123')
+  expect(signUp).not.toHaveBeenCalled()
+})
+
+test('el modo de creación de cuenta llama a signUp en vez de signIn', async () => {
+  const user = userEvent.setup()
+  render(<LoginPage />)
+
+  await user.click(screen.getByRole('button', { name: /crear cuenta/i }))
+  await user.type(screen.getByLabelText(/correo/i), 'nueva@ejemplo.cl')
+  await user.type(screen.getByLabelText(/contraseña/i), 'secreta123')
+  await user.click(screen.getByRole('button', { name: /crear cuenta/i }))
+
+  expect(signUp).toHaveBeenCalledWith('nueva@ejemplo.cl', 'secreta123')
+  expect(signIn).not.toHaveBeenCalled()
+})
+
+test('muestra un mensaje claro cuando las credenciales son incorrectas', async () => {
+  const user = userEvent.setup()
+  signIn.mockRejectedValueOnce({ name: 'AuthApiError', code: 'invalid_credentials', status: 400 })
+  render(<LoginPage />)
+
+  await user.type(screen.getByLabelText(/correo/i), 'coleccionista@ejemplo.cl')
+  await user.type(screen.getByLabelText(/contraseña/i), 'incorrecta')
+  await user.click(screen.getByRole('button', { name: /iniciar sesión/i }))
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(/correo o contraseña incorrectos/i)
+})
+
+test('muestra un mensaje claro cuando el correo ya está registrado', async () => {
+  const user = userEvent.setup()
+  signUp.mockRejectedValueOnce({ name: 'AuthApiError', code: 'user_already_exists', status: 422 })
+  render(<LoginPage />)
+
+  await user.click(screen.getByRole('button', { name: /crear cuenta/i }))
+  await user.type(screen.getByLabelText(/correo/i), 'coleccionista@ejemplo.cl')
+  await user.type(screen.getByLabelText(/contraseña/i), 'secreta123')
+  await user.click(screen.getByRole('button', { name: /crear cuenta/i }))
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(/ya existe una cuenta/i)
+})
+
+test('no muestra un mensaje genérico para un error no reconocido', async () => {
+  const user = userEvent.setup()
+  signIn.mockRejectedValueOnce({ name: 'AuthUnknownError', message: 'network hiccup' })
+  render(<LoginPage />)
+
+  await user.type(screen.getByLabelText(/correo/i), 'coleccionista@ejemplo.cl')
+  await user.type(screen.getByLabelText(/contraseña/i), 'secreta123')
+  await user.click(screen.getByRole('button', { name: /iniciar sesión/i }))
+
+  const alert = await screen.findByRole('alert')
+  expect(alert).not.toHaveTextContent(/network hiccup/i)
+  expect(alert).toHaveTextContent(/no se pudo completar la operación/i)
 })
