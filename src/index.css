@@ -11,8 +11,8 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading: system-ui, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
@@ -93,6 +93,52 @@ h2 {
 }
 p {
   margin: 0;
+}
+
+.issuer-dropdown {
+  position: relative;
+}
+
+.issuer-dropdown-trigger,
+.issuer-dropdown-menu input,
+.issuer-dropdown-menu button {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  text-align: left;
+}
+
+.issuer-dropdown-trigger {
+  cursor: pointer;
+}
+
+.issuer-dropdown-menu {
+  position: absolute;
+  z-index: 2;
+  inset: calc(100% + 4px) 0 auto;
+  padding: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  box-shadow: var(--shadow);
+}
+
+.issuer-dropdown-menu [role="listbox"] {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.issuer-dropdown-menu button {
+  cursor: pointer;
+  border-top: 0;
+}
+
+.issuer-dropdown-menu button:hover,
+.issuer-dropdown-menu button[aria-selected="true"] {
+  background: var(--accent-bg);
 }
 
 code,

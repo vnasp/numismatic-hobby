@@ -1,32 +1,47 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import type { NumistaType, NumistaIssue, NumistaSearchResultType } from '../../../shared/numista/types'
-import { NumistaQuotaError } from '../../../shared/numista/errors'
-import { getTypeWithIssues } from '../../lib/numista/proxyClient'
-import { useSearchByKm } from './useSearchByKm'
-import { KmSearchForm } from './KmSearchForm'
-import { TypeResultList } from './TypeResultList'
-import { IssuePicker } from './IssuePicker'
-import { ItemForm, type ItemFormValues } from './ItemForm'
-import { saveItem } from './saveItem'
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type {
+  NumistaType,
+  NumistaIssue,
+  NumistaSearchResultType,
+} from "../../../shared/numista/types";
+import { NumistaQuotaError } from "../../../shared/numista/errors";
+import {
+  getCachedIssuers,
+  getTypeWithIssues,
+} from "../../lib/numista/proxyClient";
+import { useSearchByKm } from "./useSearchByKm";
+import { KmSearchForm } from "./KmSearchForm";
+import { TypeResultList } from "./TypeResultList";
+import { IssuePicker } from "./IssuePicker";
+import { ItemForm, type ItemFormValues } from "./ItemForm";
+import { saveItem } from "./saveItem";
 
 export function AddCoinPage() {
-  const navigate = useNavigate()
-  const queryClient = useQueryClient()
-  const search = useSearchByKm()
-  const [selected, setSelected] = useState<
-    { type: NumistaType; issues: NumistaIssue[] } | null
-  >(null)
-  const [issueId, setIssueId] = useState<number | null>(null)
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const search = useSearchByKm();
+  const issuers = useQuery({
+    queryKey: ["issuers", "visible-v2"],
+    queryFn: getCachedIssuers,
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: "always",
+  });
+  const [selected, setSelected] = useState<{
+    type: NumistaType;
+    issues: NumistaIssue[];
+  } | null>(null);
+  const [issueId, setIssueId] = useState<number | null>(null);
 
   const loadType = useMutation({
     mutationFn: (type: NumistaSearchResultType) => getTypeWithIssues(type.id),
     onSuccess: (data) => {
-      setSelected(data)
-      setIssueId(null)
+      setSelected(data);
+      setIssueId(null);
     },
-  })
+  });
 
   const save = useMutation({
     mutationFn: (values: ItemFormValues) =>
@@ -39,21 +54,21 @@ export function AddCoinPage() {
       // La colección (queryKey ['collection']) puede seguir cacheada de una
       // visita anterior a "/": se invalida para que la moneda recién
       // guardada aparezca sin depender de un refresco manual.
-      queryClient.invalidateQueries({ queryKey: ['collection'] })
-      navigate('/')
+      queryClient.invalidateQueries({ queryKey: ["collection"] });
+      navigate("/");
     },
-  })
+  });
 
-  const error = search.error ?? loadType.error ?? save.error
+  const error = search.error ?? loadType.error ?? save.error;
 
   // Una búsqueda nueva abandona cualquier intento de cargar un tipo o de
   // guardar que quedara colgado de la búsqueda anterior: sus errores ya no
   // corresponden a lo que se está mostrando, así que se limpian antes de
   // buscar. `search.mutate` limpia `search.error` por su cuenta.
-  function handleSearch(km: string) {
-    loadType.reset()
-    save.reset()
-    search.mutate(km)
+  function handleSearch(km: string, issuer: string) {
+    loadType.reset();
+    save.reset();
+    search.mutate({ km, issuer });
   }
 
   // Al salir de la moneda seleccionada (para elegir otra) se abandona tanto
@@ -61,9 +76,9 @@ export function AddCoinPage() {
   // hubiera fallado: ninguno de los dos aplica ya a la vista de búsqueda a
   // la que se vuelve.
   function handleBackToSearch() {
-    setSelected(null)
-    loadType.reset()
-    save.reset()
+    setSelected(null);
+    loadType.reset();
+    save.reset();
   }
 
   return (
@@ -75,6 +90,7 @@ export function AddCoinPage() {
           <KmSearchForm
             onSearch={handleSearch}
             isSearching={search.isPending}
+            issuers={issuers.data}
           />
           {search.data && (
             <TypeResultList
@@ -97,17 +113,20 @@ export function AddCoinPage() {
             selectedId={issueId}
             onSelect={setIssueId}
           />
-          <ItemForm onSubmit={(v) => save.mutate(v)} isSaving={save.isPending} />
+          <ItemForm
+            onSubmit={(v) => save.mutate(v)}
+            isSaving={save.isPending}
+          />
         </>
       )}
 
       {error && (
         <p role="alert">
           {error instanceof NumistaQuotaError
-            ? 'Se agotó la cuota mensual de la API de Numista. Las monedas ya consultadas siguen disponibles; vuelve a intentarlo el próximo mes.'
+            ? "Se agotó la cuota mensual de la API de Numista. Las monedas ya consultadas siguen disponibles; vuelve a intentarlo el próximo mes."
             : error.message}
         </p>
       )}
     </main>
-  )
+  );
 }

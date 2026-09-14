@@ -1,4 +1,9 @@
-import type { NumistaType, NumistaIssue, NumistaSearchResult } from '../../../shared/numista/types.ts'
+import type {
+  NumistaType,
+  NumistaIssue,
+  NumistaSearchResult,
+  NumistaIssuersResult,
+} from '../../../shared/numista/types.ts'
 import {
   NumistaError,
   NumistaQuotaError,
@@ -32,9 +37,17 @@ async function call<T>(path: string, params: Record<string, string>): Promise<T>
   return await res.json() as T
 }
 
-export function searchByKm(km: string): Promise<NumistaSearchResult> {
-  // El parámetro `number` sólo funciona acompañado de `catalogue`.
-  return call('/types', { catalogue: String(KM_CATALOGUE_ID), number: km })
+export function searchByKm(km: string, issuer?: string): Promise<NumistaSearchResult> {
+  // El parámetro `number` sólo funciona acompañado de `catalogue`. `issuer`
+  // es opcional: los números KM no son únicos entre países (KM 59 existe
+  // para Chile, Canadá, Marruecos, etc.), así que se acepta para acotar la
+  // búsqueda a un emisor, pero sin él la búsqueda mundial sigue funcionando
+  // (fallback cuando no se conoce el país).
+  return call('/types', { catalogue: String(KM_CATALOGUE_ID), number: km, issuer: issuer ?? '' })
+}
+
+export function listIssuers(): Promise<NumistaIssuersResult> {
+  return call('/issuers', {})
 }
 
 export function search(params: { issuer?: string; q?: string; year?: string }): Promise<NumistaSearchResult> {

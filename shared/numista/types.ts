@@ -61,3 +61,18 @@ export interface NumistaSearchResult {
   count: number
   types: NumistaSearchResultType[]
 }
+
+/** Item de la lista devuelta por `GET /issuers`. Ver swagger.yaml. */
+export interface NumistaIssuer {
+  code: string
+  name: string
+  flag?: string
+  wikidata_id?: string
+  parent?: { code: string; name: string }
+  level?: number
+}
+
+export interface NumistaIssuersResult {
+  count: number
+  issuers: NumistaIssuer[]
+}
