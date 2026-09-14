@@ -40,7 +40,7 @@ test('no arrastra el error de un guardado fallido a una búsqueda nueva', async 
 
   searchByKm.mockResolvedValueOnce({
     count: 1,
-    types: [{ id: 1, title: 'Moneda A', min_year: 2000 }],
+    types: [{ id: 1, title: 'Moneda A', min_year: 2000, obverse_thumbnail: 'https://ejemplo.cl/a.jpg' }],
   })
   getTypeWithIssues.mockResolvedValueOnce({
     type: { id: 1, title: 'Moneda A' },
@@ -65,7 +65,7 @@ test('no arrastra el error de un guardado fallido a una búsqueda nueva', async 
 
   searchByKm.mockResolvedValueOnce({
     count: 1,
-    types: [{ id: 2, title: 'Moneda B', min_year: 2001 }],
+    types: [{ id: 2, title: 'Moneda B', min_year: 2001, obverse_thumbnail: 'https://ejemplo.cl/b.jpg' }],
   })
   await user.type(screen.getByLabelText(/número km/i), '222')
   await user.click(screen.getByRole('button', { name: /^buscar$/i }))
@@ -82,7 +82,7 @@ test('no arrastra el error de una carga de tipo fallida a una búsqueda nueva', 
 
   searchByKm.mockResolvedValueOnce({
     count: 1,
-    types: [{ id: 1, title: 'Moneda A', min_year: 2000 }],
+    types: [{ id: 1, title: 'Moneda A', min_year: 2000, obverse_thumbnail: 'https://ejemplo.cl/a.jpg' }],
   })
   getTypeWithIssues.mockRejectedValueOnce(new Error('Fallo simulado al cargar el tipo'))
 
@@ -99,7 +99,7 @@ test('no arrastra el error de una carga de tipo fallida a una búsqueda nueva', 
   // Sin pasar por "Elegir otra moneda": se busca directamente de nuevo.
   searchByKm.mockResolvedValueOnce({
     count: 1,
-    types: [{ id: 2, title: 'Moneda B', min_year: 2001 }],
+    types: [{ id: 2, title: 'Moneda B', min_year: 2001, obverse_thumbnail: 'https://ejemplo.cl/b.jpg' }],
   })
   await user.clear(screen.getByLabelText(/número km/i))
   await user.type(screen.getByLabelText(/número km/i), '222')

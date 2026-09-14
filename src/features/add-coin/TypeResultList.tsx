@@ -1,9 +1,8 @@
-import type { NumistaType } from '../../../shared/numista/types'
-import { extractKmNumber } from '../../../shared/numista/references'
+import type { NumistaSearchResultType } from '../../../shared/numista/types'
 
 interface Props {
-  types: NumistaType[]
-  onSelect: (type: NumistaType) => void
+  types: NumistaSearchResultType[]
+  onSelect: (type: NumistaSearchResultType) => void
 }
 
 export function TypeResultList({ types, onSelect }: Props) {
@@ -16,8 +15,8 @@ export function TypeResultList({ types, onSelect }: Props) {
       {types.map((type) => (
         <li key={type.id}>
           <button type="button" onClick={() => onSelect(type)}>
-            {type.obverse?.thumbnail && (
-              <img src={type.obverse.thumbnail} alt="" width={60} height={60} />
+            {type.obverse_thumbnail && (
+              <img src={type.obverse_thumbnail} alt="" width={60} height={60} />
             )}
             <span>{type.title}</span>
             <span>{type.issuer?.name}</span>
@@ -25,9 +24,6 @@ export function TypeResultList({ types, onSelect }: Props) {
               {type.min_year}
               {type.max_year && type.max_year !== type.min_year ? `–${type.max_year}` : ''}
             </span>
-            {extractKmNumber(type.references) && (
-              <span>KM #{extractKmNumber(type.references)}</span>
-            )}
           </button>
         </li>
       ))}

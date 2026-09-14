@@ -29,6 +29,23 @@ export interface NumistaType {
   type?: string
 }
 
+/**
+ * Item de la lista devuelta por `GET /types` (búsqueda). A diferencia de
+ * `NumistaType` (la respuesta de `GET /types/{id}`), aquí las miniaturas
+ * vienen en campos planos (`obverse_thumbnail` / `reverse_thumbnail`) y NO
+ * hay `references`: ver el esquema del 200 de `/types` en swagger.yaml.
+ */
+export interface NumistaSearchResultType {
+  id: number
+  title: string
+  issuer?: { code: string; name: string }
+  min_year?: number
+  max_year?: number
+  obverse_thumbnail?: string
+  reverse_thumbnail?: string
+  category?: string
+}
+
 export interface NumistaIssue {
   id: number
   is_dated?: boolean
@@ -42,5 +59,5 @@ export interface NumistaIssue {
 
 export interface NumistaSearchResult {
   count: number
-  types: NumistaType[]
+  types: NumistaSearchResultType[]
 }

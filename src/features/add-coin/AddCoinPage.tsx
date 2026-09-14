@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import type { NumistaType, NumistaIssue } from '../../../shared/numista/types'
+import type { NumistaType, NumistaIssue, NumistaSearchResultType } from '../../../shared/numista/types'
 import { NumistaQuotaError } from '../../../shared/numista/errors'
 import { getTypeWithIssues } from '../../lib/numista/proxyClient'
 import { useSearchByKm } from './useSearchByKm'
@@ -21,7 +21,7 @@ export function AddCoinPage() {
   const [issueId, setIssueId] = useState<number | null>(null)
 
   const loadType = useMutation({
-    mutationFn: (type: NumistaType) => getTypeWithIssues(type.id),
+    mutationFn: (type: NumistaSearchResultType) => getTypeWithIssues(type.id),
     onSuccess: (data) => {
       setSelected(data)
       setIssueId(null)
