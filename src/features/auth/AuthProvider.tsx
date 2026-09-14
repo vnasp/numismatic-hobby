@@ -24,10 +24,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
-      setLoading(false)
-    })
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        setSession(data.session)
+        setLoading(false)
+      })
+      .catch((err) => {
+        // Sin red, DNS caído, etc.: se resuelve como "sin sesión" para que la
+        // usuaria llegue a /login en vez de quedarse en "Cargando…" para siempre.
+        console.error('AuthProvider: getSession falló', err)
+        setSession(null)
+        setLoading(false)
+      })
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => setSession(s))
     return () => sub.subscription.unsubscribe()
   }, [])

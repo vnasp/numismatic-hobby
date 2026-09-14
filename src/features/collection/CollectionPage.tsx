@@ -1,13 +1,20 @@
 import { Link } from 'react-router-dom'
+import { useAuth } from '../auth/AuthProvider'
 import { useCollection } from './useCollection'
 import { CoinCard } from './CoinCard'
 
 export function CollectionPage() {
   const { data, isLoading, error } = useCollection()
+  const { signOut } = useAuth()
 
   return (
     <main>
-      <h1>Mi Colección de Monedas</h1>
+      <header>
+        <h1>Mi Colección de Monedas</h1>
+        <button type="button" onClick={() => signOut()}>
+          Cerrar sesión
+        </button>
+      </header>
       <Link to="/agregar">Agregar moneda</Link>
 
       {isLoading && <p>Cargando colección…</p>}

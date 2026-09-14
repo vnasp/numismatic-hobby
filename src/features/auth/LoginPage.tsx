@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Navigate } from 'react-router-dom'
 import { useAuth } from './AuthProvider'
 
 type Mode = 'signIn' | 'signUp'
@@ -50,7 +51,7 @@ function mapAuthError(error: unknown): string {
 }
 
 export function LoginPage() {
-  const { signIn, signUp } = useAuth()
+  const { session, loading, signIn, signUp } = useAuth()
   const [mode, setMode] = useState<Mode>('signIn')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -59,6 +60,13 @@ export function LoginPage() {
   const [submitting, setSubmitting] = useState(false)
 
   const isSignUp = mode === 'signUp'
+
+  // Ya hay una sesión activa (login recién exitoso, o se llegó a /login estando
+  // ya autenticada): no hay nada que hacer aquí. Se espera a que `loading`
+  // resuelva para no redirigir antes de saber si hay sesión.
+  if (!loading && session) {
+    return <Navigate to="/" replace />
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -73,8 +81,9 @@ export function LoginPage() {
             'Creamos tu cuenta. Revisa tu correo y confirma tu cuenta antes de iniciar sesión.'
           )
         }
-        // Si no necesita confirmación, Supabase ya dejó la sesión activa y
-        // el resto de la app reacciona al cambio de `session` normalmente.
+        // Si no necesita confirmación, Supabase ya dejó la sesión activa: el
+        // chequeo de `session` al inicio de este componente se encarga de
+        // sacar a la usuaria de /login.
       } else {
         await signIn(email, password)
       }
