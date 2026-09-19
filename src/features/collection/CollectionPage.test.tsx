@@ -41,6 +41,7 @@ function entry(overrides: Partial<CollectionEntry> = {}): CollectionEntry {
     continent: 'América',
     reference: { code: 'KM', number: '179a' },
     issueYear: 1955,
+    mintLetter: null,
     thumbnail: null,
     thumbnailBack: null,
     material: null,

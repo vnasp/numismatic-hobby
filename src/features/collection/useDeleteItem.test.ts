@@ -24,6 +24,7 @@ function entry(id: string): CollectionEntry {
     continent: 'América',
     reference: null,
     issueYear: null,
+    mintLetter: null,
     thumbnail: null,
     thumbnailBack: null,
     material: null,

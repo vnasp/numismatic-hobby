@@ -25,6 +25,7 @@ function entry(overrides: Partial<CollectionEntry> = {}): CollectionEntry {
     continent: 'América',
     reference: null,
     issueYear: 1955,
+    mintLetter: null,
     thumbnail: null,
     thumbnailBack: null,
     material: null,

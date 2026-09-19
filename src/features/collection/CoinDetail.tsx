@@ -1,34 +1,34 @@
-import { useEffect, useId, useRef, useState } from 'react'
-import { numistaTypeUrl } from '../../../shared/numista/urls'
-import { formatReference } from '../../../shared/numista/references'
-import { gradeLabel } from '../../lib/grades'
-import { CloseIcon, ExternalIcon } from '../shell/icons'
-import { Dropdown } from '../shell/Dropdown'
-import type { CollectionEntry } from './useCollection'
-import { useSaveValue } from './useSaveValue'
+import { useEffect, useId, useRef, useState } from "react";
+import { numistaTypeUrl } from "../../../shared/numista/urls";
+import { formatReference } from "../../../shared/numista/references";
+import { gradeLabel } from "../../lib/grades";
+import { CloseIcon, ExternalIcon } from "../shell/icons";
+import { Dropdown } from "../shell/Dropdown";
+import type { CollectionEntry } from "./useCollection";
+import { useSaveValue } from "./useSaveValue";
 
 interface Props {
-  entry: CollectionEntry
-  onClose: () => void
+  entry: CollectionEntry;
+  onClose: () => void;
 }
 
 const CURRENCIES = [
-  { value: 'CLP', label: 'CLP' },
-  { value: 'USD', label: 'USD' },
-  { value: 'EUR', label: 'EUR' },
-]
+  { value: "CLP", label: "CLP" },
+  { value: "USD", label: "USD" },
+  { value: "EUR", label: "EUR" },
+];
 
 /** Decimales con coma, como corresponde en español. */
 function formatNumber(value: number): string {
-  return value.toLocaleString('es', { maximumFractionDigits: 2 })
+  return value.toLocaleString("es", { maximumFractionDigits: 2 });
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('es', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
+  return new Date(iso).toLocaleDateString("es", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 /**
@@ -39,44 +39,54 @@ function formatDate(iso: string): string {
  * enlace a Numista y la valoración anotada a mano.
  */
 export function CoinDetail({ entry, onClose }: Props) {
-  const titleId = useId()
-  const closeRef = useRef<HTMLButtonElement>(null)
-  const save = useSaveValue()
+  const titleId = useId();
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const save = useSaveValue();
 
-  const [amount, setAmount] = useState(entry.value ? String(entry.value.amount) : '')
-  const [currency, setCurrency] = useState(entry.value?.currency ?? 'CLP')
+  const [amount, setAmount] = useState(
+    entry.value ? String(entry.value.amount) : "",
+  );
+  const [currency, setCurrency] = useState(entry.value?.currency ?? "CLP");
 
   useEffect(() => {
-    closeRef.current?.focus()
-  }, [])
+    closeRef.current?.focus();
+  }, []);
 
   useEffect(() => {
     function handleKey(event: KeyboardEvent) {
-      if (event.key === 'Escape') onClose()
+      if (event.key === "Escape") onClose();
     }
-    document.addEventListener('keydown', handleKey)
-    return () => document.removeEventListener('keydown', handleKey)
-  }, [onClose])
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
 
-  const facts: { label: string; value: string }[] = []
-  if (entry.issuerName) facts.push({ label: 'País', value: entry.issuerName })
-  if (entry.issueYear) facts.push({ label: 'Año', value: String(entry.issueYear) })
+  const facts: { label: string; value: string }[] = [];
+  if (entry.issuerName) facts.push({ label: "País", value: entry.issuerName });
+  if (entry.issueYear)
+    facts.push({ label: "Año", value: String(entry.issueYear) });
+  // La ceca va aparte del año: el precio de Numista es por año y ceca.
+  if (entry.mintLetter) facts.push({ label: "Ceca", value: entry.mintLetter });
   if (entry.reference) {
-    facts.push({ label: 'Catálogo', value: formatReference(entry.reference) })
+    facts.push({ label: "Catálogo", value: formatReference(entry.reference) });
   }
-  if (entry.grade) facts.push({ label: 'Conservación', value: gradeLabel(entry.grade) })
-  if (entry.material) facts.push({ label: 'Material', value: entry.material })
+  if (entry.grade)
+    facts.push({ label: "Conservación", value: gradeLabel(entry.grade) });
+  if (entry.material) facts.push({ label: "Material", value: entry.material });
   if (entry.diameterMm) {
-    facts.push({ label: 'Diámetro', value: `${formatNumber(entry.diameterMm)} mm` })
+    facts.push({
+      label: "Diámetro",
+      value: `${formatNumber(entry.diameterMm)} mm`,
+    });
   }
-  if (entry.weightG) facts.push({ label: 'Peso', value: `${formatNumber(entry.weightG)} g` })
+  if (entry.weightG)
+    facts.push({ label: "Peso", value: `${formatNumber(entry.weightG)} g` });
 
   function handleSubmit(event: React.FormEvent) {
-    event.preventDefault()
-    const trimmed = amount.trim().replace(',', '.')
-    const parsed = trimmed === '' ? null : Number(trimmed)
-    if (parsed !== null && (Number.isNaN(parsed) || parsed < 0)) return
-    save.mutate({ id: entry.id, amount: parsed, currency })
+    event.preventDefault();
+    const trimmed = amount.trim().replace(",", ".");
+    const parsed = trimmed === "" ? null : Number(trimmed);
+    if (parsed !== null && (Number.isNaN(parsed) || parsed < 0)) return;
+    save.mutate({ id: entry.id, amount: parsed, currency });
   }
 
   return (
@@ -125,11 +135,6 @@ export function CoinDetail({ entry, onClose }: Props) {
 
         <form className="detail__value" onSubmit={handleSubmit}>
           <h3 className="detail__subtitle">Valoración</h3>
-          <p className="field__hint">
-            Numista publica precios por estado de conservación, pero sólo los
-            entrega por API en su plan de pago. Consúltalos en la ficha y
-            anótalos aquí.
-          </p>
 
           <div className="detail__value-row">
             <div className="field">
@@ -168,10 +173,12 @@ export function CoinDetail({ entry, onClose }: Props) {
           {entry.value?.at && !save.isSuccess && (
             <p className="field__hint">
               Anotada el {formatDate(entry.value.at)}
-              {entry.value.source ? ` · ${entry.value.source}` : ''}
+              {entry.value.source ? ` · ${entry.value.source}` : ""}
             </p>
           )}
-          {save.isSuccess && <p className="field__hint">Valoración guardada.</p>}
+          {save.isSuccess && (
+            <p className="field__hint">Valoración guardada.</p>
+          )}
 
           <div className="dialog__actions">
             <a
@@ -182,12 +189,16 @@ export function CoinDetail({ entry, onClose }: Props) {
             >
               Ver en Numista <ExternalIcon size={14} />
             </a>
-            <button type="submit" className="btn btn--primary" disabled={save.isPending}>
-              {save.isPending ? 'Guardando…' : 'Guardar'}
+            <button
+              type="submit"
+              className="btn btn--primary"
+              disabled={save.isPending}
+            >
+              {save.isPending ? "Guardando…" : "Guardar"}
             </button>
           </div>
         </form>
       </div>
     </div>
-  )
+  );
 }
