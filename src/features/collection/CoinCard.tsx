@@ -30,7 +30,7 @@ export function CoinCard({ entry, onToggleFavorite, onDelete, onOpen }: Props) {
       <div className={`coin-card__well${hasImage ? '' : ' coin-card__well--empty'}`}>
         {hasImage ? (
           <Opener entry={entry} onOpen={onOpen}>
-            <span className={`coin-card__disc${hasBack ? ' coin-card__disc--two-sided' : ''}`}>
+            <span className="coin-card__disc">
               <img
                 className="coin-card__img"
                 src={entry.thumbnail!}

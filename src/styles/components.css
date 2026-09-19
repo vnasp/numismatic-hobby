@@ -312,6 +312,11 @@
  * altura de la fila.
  */
 .coin-card__disc {
+  /* `display: block` es parte del recorte, no un detalle: es un <span>, y
+     como caja en línea ignoraba el aspect-ratio y dejaba la segunda cara
+     fuera de la máscara. `position: relative` ancla esa segunda cara. */
+  display: block;
+  position: relative;
   width: 100%;
   aspect-ratio: 1;
   overflow: hidden;
@@ -328,10 +333,6 @@
 
 /* Dos caras: la de atrás se apila encima y se funde al pasar el puntero o al
    enfocar algo dentro de la ficha (el corazón o la papelera, con teclado). */
-.coin-card__disc--two-sided {
-  position: relative;
-}
-
 .coin-card__img--back {
   position: absolute;
   inset: 0;
