@@ -1,0 +1,215 @@
+/**
+ * Reset acotado, tipografía y estructura de página.
+ * Mobile-first: las media queries sólo amplían.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* El fondo llega hasta el área bajo el notch y la barra de gestos en iOS. */
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  font: 400 16px/1.55 var(--font-sans);
+  color: var(--text);
+  background: var(--bg);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- Titulares: serif, para el registro de catálogo --- */
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  /* Fraunces es variable: el eje `opsz` se ajusta solo al tamaño de cada
+     titular, afinando el contraste de los trazos en los más chicos. */
+  font-optical-sizing: auto;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+h2 {
+  font-size: 21px;
+  line-height: 1.25;
+}
+
+h3 {
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 36px;
+  }
+  h2 {
+    font-size: 24px;
+  }
+}
+
+p {
+  margin: 0;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* --- Foco visible y consistente en toda la app --- */
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* --- Estructura de página --- */
+
+/**
+ * `.app` ocupa todo el ancho para que la barra superior pueda cruzar la
+ * ventana completa; el ancho de lectura lo imponen los contenedores internos
+ * (`.app-bar__inner` y `.app__main`), que comparten el mismo gutter para que
+ * el título de la barra quede alineado con la grilla de abajo.
+ */
+.app {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.app-bar__inner,
+.app__main {
+  width: 100%;
+  max-width: var(--page-width);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .app-bar__inner,
+  .app__main {
+    padding-inline: var(--space-6);
+  }
+}
+
+/**
+ * Barra fija: en una colección de 200+ monedas el scroll es largo y
+ * "cerrar sesión" / "agregar" deben seguir al alcance del pulgar.
+ */
+.app-bar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-raised) 88%, transparent);
+  backdrop-filter: blur(12px);
+}
+
+.app-bar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-block: var(--space-3);
+}
+
+/**
+ * Fraunces es bastante más ancha que la pila de respaldo, así que en móvil el
+ * título baja de cuerpo para que "Mi Colección de Monedas" quepa en una línea
+ * junto a la acción de la derecha.
+ */
+.app-bar__title {
+  font-size: 17px;
+  letter-spacing: -0.005em;
+  text-wrap: nowrap;
+}
+
+@media (min-width: 480px) {
+  .app-bar__title {
+    font-size: 19px;
+  }
+}
+
+@media (min-width: 768px) {
+  .app-bar__title {
+    font-size: 22px;
+  }
+}
+
+.app__main {
+  flex: 1;
+  padding-block: var(--space-5) var(--space-8);
+}
+
+/* Bloque introductorio de una pantalla: contador, acción principal. */
+.page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+/* Etiqueta pequeña sobre un titular: "213 piezas", "Paso 2". */
+.eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

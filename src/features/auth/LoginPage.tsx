@@ -101,38 +101,70 @@ export function LoginPage() {
   }
 
   return (
-    <main>
-      <h1>Mi Colección de Monedas</h1>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="email">Correo electrónico</label>
-        <input
-          id="email"
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <label htmlFor="password">Contraseña</label>
-        <input
-          id="password"
-          type="password"
-          autoComplete={isSignUp ? 'new-password' : 'current-password'}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          minLength={6}
-          required
-        />
-        <button type="submit" disabled={submitting}>
-          {isSignUp ? 'Crear cuenta' : 'Iniciar sesión'}
-        </button>
-      </form>
-      <button type="button" onClick={toggleMode}>
-        {isSignUp ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Crear cuenta'}
-      </button>
-      {info && <p role="status">{info}</p>}
-      {error && <p role="alert">{error}</p>}
-    </main>
+    <div className="app">
+      <main className="auth">
+        <div className="auth__brand">
+          <h1>Mi Colección de Monedas</h1>
+          <p className="auth__tagline">
+            Tu vitrina personal, catalogada por número KM.
+          </p>
+        </div>
+
+        <form className="form card" onSubmit={handleSubmit}>
+          <div className="field">
+            <label className="field__label" htmlFor="email">
+              Correo electrónico
+            </label>
+            <input
+              className="input"
+              id="email"
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="field">
+            <label className="field__label" htmlFor="password">
+              Contraseña
+            </label>
+            <input
+              className="input"
+              id="password"
+              type="password"
+              autoComplete={isSignUp ? 'new-password' : 'current-password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={6}
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn btn--primary btn--block" disabled={submitting}>
+            {isSignUp ? 'Crear cuenta' : 'Iniciar sesión'}
+          </button>
+        </form>
+
+        <p className="auth__switch">
+          <button type="button" className="link-btn" onClick={toggleMode}>
+            {isSignUp ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Crear cuenta'}
+          </button>
+        </p>
+
+        {info && (
+          <p className="alert alert--info" role="status">
+            {info}
+          </p>
+        )}
+        {error && (
+          <p className="alert alert--error" role="alert">
+            {error}
+          </p>
+        )}
+      </main>
+    </div>
   )
 }
