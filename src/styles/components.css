@@ -1,0 +1,1831 @@
+/* =========================================================================
+   Botones
+   ========================================================================= */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  /* 44px de alto mínimo: la app se usa con el pulgar. */
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font: 500 15px/1.2 var(--font-sans);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--surface-hover);
+  border-color: var(--gold-line);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Acción principal de la pantalla. Sólo una por vista. */
+.btn--primary {
+  border-color: transparent;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  color: #241a0a;
+  font-weight: 600;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #f7dcae, var(--gold-bright));
+  border-color: transparent;
+}
+
+/* Acción secundaria: sin caja hasta que se la toca. */
+.btn--ghost {
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+/* Enlace textual con subrayado discreto (cambiar de modo, volver atrás). */
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--gold);
+  font: inherit;
+  font-size: 15px;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--gold-line);
+  cursor: pointer;
+}
+
+.link-btn:hover {
+  color: var(--gold-bright);
+  text-decoration-color: currentColor;
+}
+
+/* =========================================================================
+   Formularios
+   ========================================================================= */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.field__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.field__hint {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-sunken);
+  color: var(--text);
+  /* 16px evita que iOS haga zoom al enfocar el campo. */
+  font: 400 16px/1.4 var(--font-sans);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--text-dim);
+}
+
+.input:hover,
+.select:hover,
+.textarea:hover {
+  border-color: var(--border-strong);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: var(--gold-line);
+  outline: 2px solid var(--gold);
+  outline-offset: -1px;
+}
+
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.select {
+  appearance: none;
+  /* Flecha dibujada en CSS: sin dependencia de íconos. */
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+    linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) calc(50% + 2px),
+    calc(100% - 13px) calc(50% + 2px);
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: var(--space-6);
+}
+
+/* =========================================================================
+   Superficies
+   ========================================================================= */
+
+.card {
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+@media (min-width: 768px) {
+  .card {
+    padding: var(--space-5);
+  }
+}
+
+/* =========================================================================
+   Distintivos y mensajes
+   ========================================================================= */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 3px var(--space-2);
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius-pill);
+  background: var(--gold-wash);
+  color: var(--gold-bright);
+  font: 600 11px/1.4 var(--font-sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* El KM es un identificador de catálogo: se lee mejor en monoespaciada. */
+.badge--km {
+  border-color: var(--border-strong);
+  background: var(--bg-sunken);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.alert {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid;
+  border-radius: var(--radius);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.alert--error {
+  border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+  background: var(--danger-wash);
+  color: var(--danger);
+}
+
+.alert--info {
+  border-color: color-mix(in srgb, var(--success) 40%, transparent);
+  background: var(--success-wash);
+  color: var(--success);
+}
+
+/* Estado vacío o de carga: centrado, sin peso visual. */
+.notice {
+  padding: var(--space-7) var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.notice__title {
+  margin-bottom: var(--space-2);
+  color: var(--text);
+}
+
+/* =========================================================================
+   Colección: grilla y ficha de moneda
+   ========================================================================= */
+
+.coin-grid {
+  display: grid;
+  /* Dos columnas en el celular más angosto; crece sola en pantallas grandes. */
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .coin-grid {
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: var(--space-4);
+  }
+}
+
+.coin-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.coin-card:hover {
+  border-color: var(--gold-line);
+  transform: translateY(-2px);
+}
+
+/**
+ * El nicho: fondo hundido con un haz de luz cenital. Es lo que hace que la
+ * moneda se lea como pieza expuesta y no como thumbnail de catálogo.
+ */
+/**
+ * El hueco no tiene fondo propio ni línea divisoria: hereda el tono de la
+ * ficha, de modo que foto y descripción se leen como una sola superficie.
+ * Lo único que queda encima es el haz de la vitrina, que al ser un degradado
+ * sin borde no dibuja una segunda zona.
+ *
+ * El fondo que se ve *dentro* del círculo no es este color: viene en la propia
+ * miniatura de Numista y cambia de una foto a otra, así que no hay CSS que lo
+ * iguale.
+ */
+.coin-card__well {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  padding: var(--space-4);
+  background: var(--spotlight);
+}
+
+/**
+ * El disco es quien recorta, no la imagen: así la máscara circular queda fija
+ * y la foto puede acercarse dentro de ella. El `aspect-ratio` es lo que impide
+ * que una miniatura vertical u horizontal salga como elipse y descuadre la
+ * altura de la fila.
+ */
+.coin-card__disc {
+  /* `display: block` es parte del recorte, no un detalle: es un <span>, y
+     como caja en línea ignoraba el aspect-ratio y dejaba la segunda cara
+     fuera de la máscara. `position: relative` ancla esa segunda cara. */
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  box-shadow: 0 6px 18px -6px rgba(0, 0, 0, 0.85);
+}
+
+.coin-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(var(--coin-zoom));
+}
+
+/* Dos caras: la de atrás se apila encima y se funde al pasar el puntero o al
+   enfocar algo dentro de la ficha (el corazón o la papelera, con teclado). */
+.coin-card__img--back {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.coin-card:hover .coin-card__img--back,
+.coin-card:focus-within .coin-card__img--back {
+  opacity: 1;
+}
+
+/* Sin foto: un disco vacío marca el lugar de la pieza que falta fotografiar. */
+.coin-card__placeholder {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px dashed var(--border-strong);
+  border-radius: 50%;
+}
+
+.coin-card__fav {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  place-items: center;
+  /* 44px aunque el ícono sea de 20: es un objetivo táctil, no un adorno. */
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.coin-card__fav:hover {
+  color: var(--gold-bright);
+}
+
+.coin-card__fav[aria-pressed="true"] {
+  color: var(--gold);
+}
+
+/* Eliminar: mismo objetivo táctil que el favorito, en la esquina opuesta y en
+   tono apagado, porque es la acción que casi nunca se usa. */
+.coin-card__delete {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.coin-card__delete:hover {
+  color: var(--danger);
+}
+
+.coin-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+}
+
+.coin-card__title {
+  /* A dos líneas como máximo: las fichas de la grilla quedan parejas. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+/* "Chile · 1955": emisor y año leídos como un solo dato de procedencia. */
+.coin-card__origin {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.coin-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-3);
+}
+
+/* =========================================================================
+   Agregar moneda: resultados de búsqueda
+   ========================================================================= */
+
+.result-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/**
+ * Cada resultado son dos controles en una misma fila: el botón que elige la
+ * moneda y el enlace a su ficha en Numista. Van separados porque un enlace
+ * dentro de un botón es HTML inválido; la caja compartida los une visualmente.
+ */
+.result {
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  transition: border-color 0.15s ease;
+}
+
+.result:hover {
+  border-color: var(--gold-line);
+}
+
+.result__pick {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.result__pick:hover {
+  background: var(--surface-hover);
+}
+
+.result__link {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  padding-inline: var(--space-3);
+  border-left: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.result__link:hover {
+  background: var(--surface-hover);
+  color: var(--gold);
+}
+
+/* Fila de acciones textuales dentro de una tarjeta. */
+.card__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.result__img {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  background: var(--spotlight), var(--bg-sunken);
+}
+
+.result__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.result__title {
+  font-weight: 500;
+}
+
+.result__issuer {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.result__years {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* =========================================================================
+   Agregar moneda: selector de emisión
+   ========================================================================= */
+
+.issue-picker {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.issue-picker__legend {
+  padding: 0;
+  font-family: var(--font-display);
+  /* Más chico que un h2: comparte renglón con "¿Cómo saberlo?" y a 21px se
+     partía en tres líneas dentro de una tarjeta de móvil. */
+  font-size: 17px;
+  line-height: 1.3;
+  color: var(--text);
+}
+
+.issue-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 340px;
+  overflow-y: auto;
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+}
+
+.issue {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 14px;
+  line-height: 1.45;
+  cursor: pointer;
+}
+
+.issue:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+}
+
+/* La emisión elegida se marca con la hairline metálica. */
+.issue:has(input:checked) {
+  border-color: var(--gold-line);
+  background: var(--gold-wash);
+}
+
+.issue input {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--gold);
+}
+
+/* =========================================================================
+   Selector de emisor (combobox)
+   ========================================================================= */
+
+.issuer-combobox {
+  /* La lista se ancla a .field-row, no aquí: así se abre al ancho de los dos
+     campos y los nombres largos de país no quedan cortados. */
+  position: static;
+}
+
+.issuer-combobox__list {
+  position: absolute;
+  z-index: var(--z-dropdown);
+  inset: calc(100% + 6px) 0 auto;
+  max-height: 280px;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  box-shadow: var(--shadow-pop);
+  list-style: none;
+}
+
+.issuer-combobox__option {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* La opción bajo el cursor y la recorrida con las flechas se ven igual: son
+   lo mismo para quien mira, aunque lleguen por vías distintas. */
+.issuer-combobox__option:hover,
+.issuer-combobox__option--active {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.issuer-combobox__option[aria-selected="true"] {
+  background: var(--gold-wash);
+  color: var(--gold-bright);
+}
+
+.issuer-combobox__empty {
+  padding: var(--space-3);
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+/* =========================================================================
+   Login
+   ========================================================================= */
+
+.auth {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 400px;
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-4) var(--space-8);
+}
+
+.auth__brand {
+  text-align: center;
+}
+
+.auth__tagline {
+  margin-top: var(--space-2);
+  color: var(--text-muted);
+}
+
+.auth__switch {
+  text-align: center;
+}
+
+/* Las fichas de una misma fila quedan a la altura de la más alta. */
+.coin-grid > li {
+  display: flex;
+}
+
+.coin-grid > li > .coin-card {
+  flex: 1;
+}
+
+/* =========================================================================
+   Encabezado de página
+   ========================================================================= */
+
+/**
+ * Franja superior con la foto de la vitrina de fondo: encabezado y filtros.
+ *
+ * Va a sangre: se estira con márgenes negativos hasta los bordes de la
+ * pantalla y recupera el gutter como padding, para que el título y los
+ * filtros sigan alineados con la grilla de abajo.
+ *
+ * La foto es clara en su mitad derecha, así que el degradado la oscurece de
+ * izquierda a derecha: los textos quedan sobre la zona oscura y el menú de
+ * cuenta, a la derecha, sobre un velo que aún lo separa del mapa.
+ */
+.page-hero {
+  margin-inline: calc(var(--space-4) * -1);
+  margin-top: calc(var(--space-5) * -1);
+  margin-bottom: var(--space-5);
+  padding: var(--space-6) var(--space-4) var(--space-4);
+  border-bottom: 1px solid var(--gold-line);
+  background-color: var(--bg-sunken);
+  background-image:
+    linear-gradient(
+      100deg,
+      rgb(13 12 11 / 94%) 0%,
+      rgb(13 12 11 / 74%) 40%,
+      rgb(13 12 11 / 46%) 100%
+    ),
+    url("/bg.webp");
+  background-position: center;
+  background-size: cover;
+}
+
+@media (min-width: 768px) {
+  .page-hero {
+    margin-inline: calc(var(--space-6) * -1);
+    padding-inline: var(--space-6);
+  }
+}
+
+/* Dentro de la franja, los bloques ya no necesitan su propio margen inferior:
+   lo pone el padding de la franja. */
+.page-hero > :last-child {
+  margin-bottom: 0;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.page-header h1 {
+  font-size: 28px;
+}
+
+@media (min-width: 768px) {
+  .page-header h1 {
+    font-size: 34px;
+  }
+}
+
+.page-header__subtitle {
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+/* =========================================================================
+   Desplegable propio (reemplaza a <select>)
+   ========================================================================= */
+
+.dropdown {
+  position: relative;
+}
+
+.dropdown__trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-sunken);
+  color: var(--text);
+  font: 400 16px/1.4 var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown__trigger:hover {
+  border-color: var(--gold-line);
+}
+
+.dropdown__trigger[aria-expanded="true"] {
+  border-color: var(--gold-line);
+}
+
+.dropdown__trigger > svg {
+  flex-shrink: 0;
+  color: var(--text-dim);
+}
+
+.dropdown__value {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dropdown__list {
+  position: absolute;
+  z-index: var(--z-dropdown);
+  /* Se ancla al borde derecho y crece hacia la izquierda: el disparador puede
+     ser angosto (el filtro de país lo es) y los nombres largos no deben
+     cortarse ni salirse de la pantalla. */
+  inset: calc(100% + 6px) 0 auto auto;
+  min-width: 100%;
+  width: max-content;
+  max-width: min(340px, 78vw);
+  max-height: 280px;
+  overflow-y: auto;
+  margin: 0;
+  padding: var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  box-shadow: var(--shadow-pop);
+  list-style: none;
+}
+
+.dropdown__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.dropdown__option--active {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.dropdown__option[aria-selected="true"] {
+  color: var(--gold-bright);
+}
+
+.dropdown__hint {
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+/* En la barra de filtros y en la de orden va en píldora y sólo lo ancho que
+   necesite, para no empujar al buscador fuera de pantalla. */
+.dropdown--pill .dropdown__trigger {
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+}
+
+.filters__country {
+  flex-shrink: 0;
+  width: auto;
+  max-width: 42%;
+}
+
+/* =========================================================================
+   Menú de cuenta
+   ========================================================================= */
+
+.account {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.account__trigger {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.account__trigger:hover {
+  color: var(--text);
+  border-color: var(--gold-line);
+}
+
+.account__menu {
+  position: absolute;
+  z-index: var(--z-dropdown);
+  inset: calc(100% + 8px) 0 auto auto;
+  min-width: 180px;
+  padding: var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--bg-raised);
+  box-shadow: var(--shadow-pop);
+}
+
+.account__menu button {
+  width: 100%;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.account__menu button:hover {
+  background: var(--surface-hover);
+}
+
+/* =========================================================================
+   Buscador y filtro de la colección
+   ========================================================================= */
+
+/* Continentes: fila de opciones que se desliza en horizontal si no cabe,
+   en vez de partirse en varias líneas que empujarían la grilla hacia abajo. */
+.continent-filter {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.continent-filter::-webkit-scrollbar {
+  display: none;
+}
+
+.continent-filter__option {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text-muted);
+  font: 500 14px/1 var(--font-sans);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.continent-filter__option:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+/* El continente elegido se pinta como el botón de agregar de la barra: es la
+   misma idea de "acción en dorado macizo" en las dos puntas de la pantalla. */
+.continent-filter__option[aria-pressed='true'] {
+  border-color: transparent;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  color: #241a0a;
+}
+
+.continent-filter__count {
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.continent-filter__option[aria-pressed='true'] .continent-filter__count {
+  color: rgb(36 26 10 / 70%);
+}
+
+/* Buscador, país, orden y vista: apilados en el celular y en una sola fila
+   desde tablet, donde sobra ancho. `display: contents` deja que en móvil los
+   dos bloques sigan comportándose como hasta ahora. */
+.toolbar {
+  display: contents;
+}
+
+@media (min-width: 768px) {
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .toolbar .filters,
+  .toolbar .sort-bar {
+    margin-bottom: 0;
+  }
+
+  .toolbar .filters {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .toolbar .sort-bar {
+    flex-shrink: 0;
+  }
+
+  /* En fila, el desplegable de orden ya no reparte el ancho sobrante: lo toma
+     el buscador, que es el que gana con ser largo. */
+  .toolbar .sort-bar__select {
+    flex: 0 0 auto;
+    min-width: 220px;
+  }
+}
+
+.filters {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.searchbox {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.searchbox__icon {
+  position: absolute;
+  top: 50%;
+  left: var(--space-3);
+  display: flex;
+  transform: translateY(-50%);
+  color: var(--text-dim);
+  /* El ícono no debe robarle el clic al campo que decora. */
+  pointer-events: none;
+}
+
+.searchbox__input {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-3) var(--space-3) var(--space-3) 42px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text);
+  font: 400 16px/1.4 var(--font-sans);
+}
+
+.searchbox__input::placeholder {
+  color: var(--text-dim);
+}
+
+.searchbox__input:focus {
+  border-color: var(--gold-line);
+  outline: 2px solid var(--gold);
+  outline-offset: -1px;
+}
+
+.sort-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.sort-bar__label {
+  color: var(--text-muted);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.sort-bar__select {
+  flex: 1;
+  min-width: 0;
+}
+
+.filters__count {
+  margin-bottom: var(--space-3);
+}
+
+/* =========================================================================
+   Botón flotante de agregar
+   ========================================================================= */
+
+/* Grilla o lista: en lista cada ficha es una fila baja, para recorrer muchas
+   monedas de un vistazo cuando se están ordenando en cajas. */
+.coin-grid--list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.coin-grid--list .coin-card {
+  flex-direction: row;
+  align-items: center;
+}
+
+.coin-grid--list .coin-card__well {
+  flex-shrink: 0;
+  width: 84px;
+  padding: var(--space-2);
+}
+
+/* En lista el corazón se va al extremo derecho de la fila: sobre la moneda
+   taparía la pieza, que en 84px ya es chica. */
+.coin-grid--list .coin-card {
+  position: relative;
+}
+
+.coin-grid--list .coin-card__well {
+  position: static;
+}
+
+.coin-grid--list .coin-card__fav {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.coin-grid--list .coin-card__delete {
+  top: 50%;
+  right: 44px;
+  left: auto;
+  transform: translateY(-50%);
+}
+
+
+.coin-grid--list .coin-card__body {
+  padding-block: var(--space-2);
+  /* Deja libre la franja de los dos botones de la derecha. */
+  padding-right: 88px;
+}
+
+.coin-grid--list .coin-card__title {
+  font-size: 16px;
+}
+
+.view-switch {
+  display: flex;
+  flex-shrink: 0;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+}
+
+.view-switch__option {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 38px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.view-switch__option:hover {
+  color: var(--text);
+}
+
+.view-switch__option[aria-pressed="true"] {
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  color: #241a0a;
+}
+
+/* =========================================================================
+   Diálogo de confirmación
+   ========================================================================= */
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: rgb(7 7 6 / 72%);
+  backdrop-filter: blur(3px);
+}
+
+.dialog {
+  width: 100%;
+  max-width: 380px;
+  padding: var(--space-5);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  background: var(--bg-raised);
+  box-shadow: var(--shadow-pop);
+}
+
+.dialog__title {
+  font-size: 20px;
+}
+
+.dialog__text {
+  margin-top: var(--space-2);
+  color: var(--text-muted);
+  font-size: 15px;
+}
+
+.dialog--wide {
+  max-width: 460px;
+  max-height: calc(100dvh - var(--space-6));
+  overflow-y: auto;
+}
+
+.detail__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.detail__faces {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.detail__faces img {
+  width: 96px;
+  height: 96px;
+  overflow: hidden;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--bg-sunken);
+}
+
+.detail__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-5) 0 0;
+}
+
+.detail__fact dt {
+  color: var(--text-dim);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.detail__fact dd {
+  margin: 2px 0 0;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.detail__value {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.detail__subtitle {
+  font-size: 17px;
+}
+
+.detail__value-row {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.detail__value-row .field {
+  flex: 1;
+}
+
+.detail__currency {
+  flex: 0 0 104px;
+}
+
+.detail__numista {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: auto;
+}
+
+/* La moneda abre su ficha: el botón no debe verse como botón, sólo cambiar el
+   cursor. El foco visible lo pone la regla global de :focus-visible. */
+.coin-card__open {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+}
+
+.dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-5);
+}
+
+.btn--danger {
+  border-color: var(--danger-line);
+  background: var(--danger-wash);
+  color: var(--danger);
+}
+
+.btn--danger:hover:not(:disabled) {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+}
+
+/* =========================================================================
+   Barra de pestañas
+   ========================================================================= */
+
+.tabbar {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: var(--z-header);
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-raised) 92%, transparent);
+  backdrop-filter: blur(12px);
+  /* Respeta la barra de gestos del iPhone. */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tabbar__list {
+  display: flex;
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.tabbar__list > li {
+  flex: 1;
+}
+
+.tabbar__tab {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-1) var(--space-3);
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.tabbar__tab:hover {
+  color: var(--text-muted);
+}
+
+.tabbar__tab--active {
+  color: var(--gold);
+}
+
+/* Subrayado metálico sobre la pestaña activa. */
+.tabbar__tab--active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 26px;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--gold);
+}
+
+/* Agregar: ocupa un lugar en el reparto de la barra, pero se dibuja saliendo
+   hacia arriba, con la mitad del círculo por encima del borde superior. */
+.tabbar__add-slot {
+  position: relative;
+}
+
+.tabbar__add {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  /* -50% en Y deja exactamente la mitad fuera de la barra. */
+  transform: translate(-50%, -50%);
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  color: #241a0a;
+  box-shadow: var(--shadow-pop);
+  transition: transform 0.15s ease;
+}
+
+.tabbar__add:hover {
+  transform: translate(-50%, calc(-50% - 2px));
+}
+
+.tabbar__label {
+  font-size: 11px;
+  letter-spacing: 0.01em;
+}
+
+/* Deja aire bajo el contenido para que la barra fija no tape la última fila. */
+.app--tabbed .app__main {
+  padding-bottom: calc(80px + env(safe-area-inset-bottom) + var(--space-6));
+}
+
+/* =========================================================================
+   Recuentos con barra (Países y Estadísticas)
+   ========================================================================= */
+
+.tally-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tally {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  overflow: hidden;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+}
+
+a.tally:hover {
+  border-color: var(--gold-line);
+}
+
+/* La barra es el fondo del recuento; el texto va por encima. */
+.tally__bar {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--gold-wash);
+}
+
+.tally__label,
+.tally__count {
+  position: relative;
+  z-index: 1;
+}
+
+.tally__count {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* =========================================================================
+   Cifras destacadas (Estadísticas)
+   ========================================================================= */
+
+.figures {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.figure__value {
+  font-family: var(--font-display);
+  font-size: 30px;
+  line-height: 1;
+  color: var(--gold);
+}
+
+/* Un importe con su código de moneda es mucho más largo que un conteo: baja
+   de cuerpo para que "CLP 128.500" no se parta en dos líneas. */
+.figure__value--money {
+  font-size: 22px;
+}
+
+.figure__label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.stats__section h2 {
+  margin-bottom: var(--space-3);
+}
+
+/* =========================================================================
+   Flujo de agregar: barra, pasos y encabezados de sección
+   ========================================================================= */
+
+.flow-bar {
+  /* El título queda centrado entre los dos botones, que miden lo mismo. */
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.flow-bar__title {
+  text-align: center;
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.icon-btn:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.stepper {
+  display: flex;
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  list-style: none;
+}
+
+.stepper__step {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* La línea que une un paso con el siguiente, a la altura del círculo. */
+.stepper__step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 15px;
+  left: calc(50% + 20px);
+  width: calc(100% - 40px);
+  height: 2px;
+  background: var(--border-strong);
+}
+
+.stepper__step--done:not(:last-child)::after {
+  background: var(--gold);
+}
+
+.stepper__dot {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--border-strong);
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.stepper__label {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.stepper__step--current .stepper__dot {
+  border-color: transparent;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  color: #241a0a;
+}
+
+.stepper__step--current .stepper__label {
+  color: var(--gold);
+  font-weight: 500;
+}
+
+.stepper__step--done .stepper__dot {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.stepper__step--done .stepper__label {
+  color: var(--text-muted);
+}
+
+/* Título de sección con una acción o un contador a la derecha. */
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+}
+
+.section-head--stacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-1);
+}
+
+/* =========================================================================
+   Campos en dos columnas y campo con borrado
+   ========================================================================= */
+
+.field-row {
+  /* Contexto de posicionamiento del menú de emisores: así se abre al ancho de
+     los dos campos y no al de su propia columna, que en móvil deja la lista de
+     países demasiado angosta para leerlos. */
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+/* Bajo ~380px las dos columnas dejan los campos impracticables. */
+@media (max-width: 380px) {
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.input-clearable {
+  position: relative;
+}
+
+.input-clearable .input {
+  /* Espacio para que el texto no pase por debajo del botón de borrar. */
+  padding-right: 40px;
+}
+
+.input-clearable__clear {
+  position: absolute;
+  top: 50%;
+  right: var(--space-2);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 50%;
+  background: var(--border);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.input-clearable__clear:hover {
+  background: var(--border-strong);
+  color: var(--text);
+}
+
+/* =========================================================================
+   Resumen del tipo elegido
+   ========================================================================= */
+
+.type-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+}
+
+.type-summary__disc {
+  flex-shrink: 0;
+  width: 76px;
+  height: 76px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--spotlight), var(--bg-sunken);
+}
+
+.type-summary__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.type-summary__text {
+  min-width: 0;
+}
+
+.type-summary__title {
+  font-size: 19px;
+  margin-bottom: var(--space-1);
+}
+
+.type-summary__line {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.type-summary__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  padding: 3px var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--bg-sunken);
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* =========================================================================
+   Ayuda de emisión
+   ========================================================================= */
+
+.issue-help__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+.issue-help__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--gold-line);
+  border-radius: var(--radius);
+  background: var(--gold-wash);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.issue-help__panel code {
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-sunken);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* =========================================================================
+   Resumen de confirmación
+   ========================================================================= */
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  justify-content: space-between;
+}
+
+.summary-row__label {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.summary-row__value {
+  margin: 0;
+  /* El valor se alinea a la derecha salvo que sea largo, donde envuelve. */
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+  color: var(--text);
+}
+
+/* =========================================================================
+   Pie del flujo
+   ========================================================================= */
+
+.flow-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.flow-footer:hover {
+  color: var(--gold);
+}

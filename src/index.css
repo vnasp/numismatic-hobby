@@ -1,0 +1,12 @@
+/**
+ * Punto de entrada de los estilos. El sistema vive en `src/styles/`:
+ *
+ *   fonts.css       — @font-face de Fraunces (auto-hospedada)
+ *   tokens.css      — color, tipografía, espaciado, sombras
+ *   base.css        — reset, titulares, estructura de página
+ *   components.css  — botones, campos, tarjetas y piezas por pantalla
+ */
+@import "./styles/fonts.css";
+@import "./styles/tokens.css";
+@import "./styles/base.css";
+@import "./styles/components.css";

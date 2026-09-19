@@ -1,0 +1,97 @@
+/**
+ * Tokens del sistema de diseño — "vitrina".
+ *
+ * La app tiene un único tema, oscuro y fijo: las monedas se leen como piezas
+ * iluminadas sobre un fondo que se corre del medio. No hay conmutación por
+ * `prefers-color-scheme` a propósito — el fondo oscuro es parte de la
+ * identidad, no una preferencia del sistema.
+ *
+ * Los neutros están levemente desaturados hacia el cálido para que los tonos
+ * metálicos de las monedas (oro, plata, bronce) no se vean verdosos contra
+ * un gris frío.
+ */
+:root {
+  color-scheme: dark;
+
+  /* --- Fondos, del más hundido al más elevado --- */
+  --bg: #0d0c0b;
+  --bg-sunken: #070706; /* el nicho donde se apoya la moneda */
+  --bg-raised: #14120f; /* barras fijas sobre el contenido */
+  --surface: #1a1714; /* tarjetas y campos */
+  --surface-hover: #221e19;
+
+  /* --- Hairlines --- */
+  --border: #2b2620;
+  --border-strong: #3d372e;
+
+  /* --- Texto --- */
+  --text: #ece6da;
+  --text-muted: #a9a094;
+  /* Aclarado para mantener AA sobre --surface-hover además de --surface. */
+  --text-dim: #9a9184;
+
+  /* --- Metal: el único acento --- */
+  --gold: #d8ab63;
+  --gold-bright: #f0cd92;
+  --gold-wash: rgba(216, 171, 99, 0.12);
+  --gold-line: rgba(216, 171, 99, 0.42);
+
+  /* --- Estados --- */
+  --danger: #ff9b86;
+  --danger-wash: rgba(255, 155, 134, 0.1);
+  --danger-line: rgba(255, 155, 134, 0.42);
+  --success: #93d9a7;
+  --success-wash: rgba(147, 217, 167, 0.1);
+
+  /* --- Tipografía --- */
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Titulares. La pila de respaldo es la que se ve mientras Fraunces carga. */
+  --font-display: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* --- Escala de espaciado (base 4px) --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* --- Radios --- */
+  --radius-sm: 6px;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* --- Sombras y luz --- */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
+  --shadow-pop: 0 12px 32px -8px rgba(0, 0, 0, 0.8);
+  /* El haz de luz de la vitrina que cae sobre cada moneda. */
+  --spotlight: radial-gradient(
+    ellipse 70% 60% at 50% 38%,
+    rgba(216, 171, 99, 0.14),
+    rgba(216, 171, 99, 0.03) 55%,
+    transparent 75%
+  );
+
+  /**
+   * Acercamiento de la foto dentro del disco.
+   *
+   * Va en 1 (sin acercar) porque Numista ya entrega la miniatura recortada al
+   * ras de la moneda: medido sobre las miniaturas del catálogo, la pieza ocupa
+   * el 100% del cuadro y no hay margen que recortar. Acercar sólo se comía el
+   * canto. Queda como token por si alguna foto antigua trae borde: subirlo lo
+   * recorta, a costa de perder canto en todas las demás.
+   */
+  --coin-zoom: 1;
+
+  /* --- Capas --- */
+  --z-header: 10;
+  --z-dropdown: 20;
+  --z-modal: 30;
+
+  /* --- Ancho de lectura --- */
+  --page-width: 1080px;
+}

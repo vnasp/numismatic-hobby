@@ -1,0 +1,7 @@
+<!-- Mismo motivo que icon-192/512.png del manifest: discos concéntricos en la
+     paleta metálica del tema (--gold-bright / --gold / oro sombreado). -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Moneda">
+  <circle cx="32" cy="32" r="30" fill="#a87c3c"/>
+  <circle cx="32" cy="32" r="23" fill="#d8ab63"/>
+  <circle cx="32" cy="32" r="13" fill="#f0cd92"/>
+</svg>
