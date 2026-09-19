@@ -199,3 +199,15 @@ test('arma la valoración anotada y la deja en null cuando no hay', async () => 
   })
   expect(result.current.data![1].value).toBeNull()
 })
+
+test('trae la ceca de la emisión', async () => {
+  order.mockResolvedValue({
+    data: [{ ...row({}), coins_issues: { year: 1981, mint_letter: 'So', refs: null } }],
+    error: null,
+  })
+
+  const { result } = renderCollection()
+
+  await waitFor(() => expect(result.current.data).toBeDefined())
+  expect(result.current.data![0].mintLetter).toBe('So')
+})

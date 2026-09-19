@@ -31,6 +31,8 @@ export interface CollectionEntry {
   /** KM de la moneda o, si no tiene, su número Yeoman (Y#). */
   reference: CatalogueReference | null
   issueYear: number | null
+  /** Letra de ceca de la emisión: junto al año determina el precio. */
+  mintLetter: string | null
   thumbnail: string | null
   /** La otra cara, para mostrarla al pasar el puntero. Null si no hay foto. */
   thumbnailBack: string | null
@@ -66,7 +68,11 @@ interface Row {
     obverse_thumbnail: string | null
     reverse_thumbnail: string | null
   }
-  coins_issues: { year: number | null; refs: NumistaReference[] | null } | null
+  coins_issues: {
+    year: number | null
+    mint_letter: string | null
+    refs: NumistaReference[] | null
+  } | null
 }
 
 export function useCollection() {
@@ -90,7 +96,7 @@ export function useCollection() {
             composition_text, size, weight,
             obverse_thumbnail, reverse_thumbnail
           ),
-          coins_issues ( year, refs:raw->references )
+          coins_issues ( year, mint_letter, refs:raw->references )
         `)
         .order('created_at', { ascending: false })
 
@@ -123,6 +129,7 @@ export function useCollection() {
         // específica cuando existe.
         reference: preferredReference(row.coins_issues?.refs, row.coins_types.refs),
         issueYear: row.coins_issues?.year ?? null,
+        mintLetter: row.coins_issues?.mint_letter ?? null,
         // Se muestra el reverso: en buena parte de las monedas es la cara
         // con el motivo distintivo, mientras el anverso repite el mismo busto
         // en toda una serie. Numista no siempre tiene foto de reverso, así

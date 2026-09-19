@@ -27,6 +27,7 @@ const entry: CollectionEntry = {
   continent: 'América',
   reference: { code: 'KM', number: '186.2' },
   issueYear: 1968,
+  mintLetter: 'So',
   thumbnail: 'https://ejemplo.cl/reverso.jpg',
   thumbnailBack: 'https://ejemplo.cl/anverso.jpg',
   material: 'Acero inoxidable',
@@ -57,6 +58,19 @@ test('muestra el material y el diámetro, que es lo que no cabe en la tarjeta', 
   expect(screen.getByText('Acero inoxidable')).toBeInTheDocument()
   expect(screen.getByText('24,5 mm')).toBeInTheDocument()
   expect(screen.getByText('5,2 g')).toBeInTheDocument()
+})
+
+test('muestra la ceca aparte del año, porque el precio depende de las dos', () => {
+  renderDetail()
+
+  expect(screen.getByText('Ceca')).toBeInTheDocument()
+  expect(screen.getByText('So')).toBeInTheDocument()
+})
+
+test('omite la ceca cuando el ejemplar se guardó sin emisión determinada', () => {
+  renderDetail({ mintLetter: null })
+
+  expect(screen.queryByText('Ceca')).not.toBeInTheDocument()
 })
 
 test('omite los datos que Numista no trae', () => {
