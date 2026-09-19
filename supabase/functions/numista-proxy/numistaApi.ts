@@ -10,9 +10,9 @@ import {
   NumistaNotFoundError,
   NumistaAuthError,
 } from '../../../shared/numista/errors.ts'
+import { KM_CATALOGUE_ID } from '../../../shared/numista/references.ts'
 
 const BASE_URL = 'https://api.numista.com/v3'
-const KM_CATALOGUE_ID = 3
 
 function apiKey(): string {
   const key = Deno.env.get('NUMISTA_API_KEY')
@@ -37,13 +37,18 @@ async function call<T>(path: string, params: Record<string, string>): Promise<T>
   return await res.json() as T
 }
 
-export function searchByKm(km: string, issuer?: string): Promise<NumistaSearchResult> {
+export function searchByKm(
+  km: string,
+  issuer?: string,
+  catalogueId: number = KM_CATALOGUE_ID,
+): Promise<NumistaSearchResult> {
   // El parámetro `number` sólo funciona acompañado de `catalogue`. `issuer`
   // es opcional: los números KM no son únicos entre países (KM 59 existe
   // para Chile, Canadá, Marruecos, etc.), así que se acepta para acotar la
   // búsqueda a un emisor, pero sin él la búsqueda mundial sigue funcionando
-  // (fallback cuando no se conoce el país).
-  return call('/types', { catalogue: String(KM_CATALOGUE_ID), number: km, issuer: issuer ?? '' })
+  // (fallback cuando no se conoce el país). `catalogueId` permite buscar el
+  // mismo número en Yeoman (Y#) para las monedas que no tienen KM.
+  return call('/types', { catalogue: String(catalogueId), number: km, issuer: issuer ?? '' })
 }
 
 export function listIssuers(): Promise<NumistaIssuersResult> {

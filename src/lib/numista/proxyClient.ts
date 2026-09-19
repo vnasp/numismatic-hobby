@@ -10,6 +10,7 @@ import {
   NumistaNotFoundError,
   NumistaAuthError,
 } from "../../../shared/numista/errors";
+import type { CatalogueCode } from "../../../shared/numista/references";
 
 export interface IssuerOption {
   issuer_code: string;
@@ -76,12 +77,15 @@ export async function getCachedIssuers(): Promise<IssuerOption[]> {
 export function searchByKm(
   km: string,
   issuer?: string,
+  catalogue: CatalogueCode = "KM",
 ): Promise<NumistaSearchResult> {
   const normalizedIssuer = issuer?.trim().toLowerCase();
   return callProxy({
     op: "searchByKm",
     km,
     ...(normalizedIssuer ? { issuer: normalizedIssuer } : {}),
+    // KM es el valor por defecto del proxy: sólo se envía cuando es otro.
+    ...(catalogue !== "KM" ? { catalogue } : {}),
   });
 }
 

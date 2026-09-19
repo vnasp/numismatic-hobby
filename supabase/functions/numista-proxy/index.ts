@@ -8,6 +8,7 @@ import {
   writeCachedIssuers,
 } from "./cache.ts";
 import { NumistaError } from "../../../shared/numista/errors.ts";
+import { SEARCH_CATALOGUES } from "../../../shared/numista/references.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -63,7 +64,17 @@ Deno.serve(async (req) => {
           typeof body.issuer === "string"
             ? body.issuer.trim().toLowerCase()
             : "";
-        return json(await api.searchByKm(km, issuer || undefined));
+        // Sólo se aceptan los catálogos conocidos: un id arbitrario gastaría
+        // cuota en búsquedas que la app nunca hace.
+        const catalogue = body.catalogue ?? "KM";
+        if (!Object.hasOwn(SEARCH_CATALOGUES, catalogue)) {
+          return json({ error: "catalogue debe ser KM o Y" }, 400);
+        }
+        const catalogueId =
+          SEARCH_CATALOGUES[catalogue as keyof typeof SEARCH_CATALOGUES];
+        return json(
+          await api.searchByKm(km, issuer || undefined, catalogueId),
+        );
       }
 
       case "search": {

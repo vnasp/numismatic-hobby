@@ -1,5 +1,6 @@
 import type { NumistaIssue } from '../../../shared/numista/types'
-import { extractKmNumber } from '../../../shared/numista/references'
+import { issueLabel } from './typeFacts'
+import { IssueHelp } from './IssueHelp'
 
 interface Props {
   issues: NumistaIssue[]
@@ -9,39 +10,37 @@ interface Props {
 
 export function IssuePicker({ issues, selectedId, onSelect }: Props) {
   return (
-    <fieldset>
-      <legend>Emisión</legend>
-      <p>
-        Elige el año y ceca exactos de tu moneda. Sin emisión no se puede
-        obtener el valor estimado.
-      </p>
-      <ul>
+    <fieldset className="issue-picker">
+      <div className="section-head">
+        <legend className="issue-picker__legend">
+          Selecciona la emisión de tu ejemplar
+        </legend>
+        <IssueHelp />
+      </div>
+
+      <ul className="issue-list">
         {issues.map((issue) => (
           <li key={issue.id}>
-            <label>
+            <label className="issue">
               <input
                 type="radio"
                 name="issue"
                 checked={selectedId === issue.id}
                 onChange={() => onSelect(issue.id)}
               />
-              {issue.year ?? 'Sin fecha'}
-              {issue.mint_letter ? ` · Ceca ${issue.mint_letter}` : ''}
-              {issue.mintage ? ` · Tirada ${issue.mintage.toLocaleString('es')}` : ''}
-              {extractKmNumber(issue.references) ? ` · KM #${extractKmNumber(issue.references)}` : ''}
-              {issue.comment ? ` · ${issue.comment}` : ''}
+              <span>{issueLabel(issue)}</span>
             </label>
           </li>
         ))}
         <li>
-          <label>
+          <label className="issue">
             <input
               type="radio"
               name="issue"
               checked={selectedId === null}
               onChange={() => onSelect(null)}
             />
-            No estoy segura de la emisión
+            <span>No estoy segura de la emisión</span>
           </label>
         </li>
       </ul>

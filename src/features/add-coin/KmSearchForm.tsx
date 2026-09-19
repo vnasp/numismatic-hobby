@@ -1,108 +1,92 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
+import { CloseIcon, SearchIcon } from "../shell/icons";
+import { IssuerCombobox } from "./IssuerCombobox";
+import { Dropdown } from "../shell/Dropdown";
 import type { IssuerOption } from "../../lib/numista/proxyClient";
+import type { CatalogueChoice } from "./useSearchByKm";
 
 interface Props {
-  onSearch: (km: string, issuer: string) => void;
+  onSearch: (km: string, issuer: string, choice: CatalogueChoice) => void;
   isSearching: boolean;
   issuers?: IssuerOption[];
+  /** Catálogo con el que llegar preseleccionado, al rebuscar desde un aviso. */
+  choice?: CatalogueChoice;
 }
 
-export function KmSearchForm({ onSearch, isSearching, issuers = [] }: Props) {
+const CHOICES: { value: CatalogueChoice; label: string }[] = [
+  { value: "ambos", label: "KM y Y#" },
+  { value: "KM", label: "Sólo KM" },
+  { value: "Y", label: "Sólo Y#" },
+];
+
+export function KmSearchForm({ onSearch, isSearching, issuers = [], choice = "ambos" }: Props) {
   const [km, setKm] = useState("");
   const [issuer, setIssuer] = useState("");
-  const [issuerQuery, setIssuerQuery] = useState("");
-  const [isIssuerOpen, setIsIssuerOpen] = useState(false);
-
-  const filteredIssuers = useMemo(() => {
-    const query = issuerQuery.trim().toLocaleLowerCase();
-    if (!query) return issuers;
-    return issuers.filter((item) =>
-      item.issuer_name.toLocaleLowerCase().includes(query),
-    );
-  }, [issuerQuery, issuers]);
-
-  const selectedIssuer = issuers.find((item) => item.issuer_code === issuer);
+  const [catalogue, setCatalogue] = useState<CatalogueChoice>(choice);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     const trimmed = km.trim();
     if (!trimmed) return;
-    onSearch(trimmed, issuer.trim().toLowerCase());
+    onSearch(trimmed, issuer.trim().toLowerCase(), catalogue);
   }
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label htmlFor="km">Número KM</label>
-      <input
-        id="km"
-        type="text"
-        inputMode="decimal"
-        value={km}
-        onChange={(e) => setKm(e.target.value)}
-        placeholder="Por ejemplo: 360.1"
-      />
-      <label id="issuer-label">Emisor (opcional)</label>
-      <div className="issuer-dropdown">
-        <button
-          type="button"
-          className="issuer-dropdown-trigger"
-          aria-haspopup="listbox"
-          aria-expanded={isIssuerOpen}
-          aria-labelledby="issuer-label issuer-value"
-          id="issuer-value"
-          onClick={() => setIsIssuerOpen((open) => !open)}
-        >
-          {selectedIssuer?.issuer_name ?? "Todos los emisores"}
-        </button>
-        {isIssuerOpen && (
-          <div className="issuer-dropdown-menu">
+    <form className="form card" onSubmit={handleSubmit}>
+      <div className="field-row">
+        <div className="field">
+          <label className="field__label" htmlFor="km">
+            Número KM o Y#
+          </label>
+          <div className="input-clearable">
             <input
-              aria-label="Buscar emisor"
-              type="search"
-              value={issuerQuery}
-              onChange={(e) => setIssuerQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Escape") setIsIssuerOpen(false);
-              }}
-              placeholder="Buscar emisor..."
-              autoFocus
+              className="input"
+              id="km"
+              type="text"
+              inputMode="decimal"
+              value={km}
+              onChange={(e) => setKm(e.target.value)}
+              placeholder="Por ejemplo: 360.1"
             />
-            <div role="listbox" aria-label="Emisores">
+            {km && (
               <button
                 type="button"
-                role="option"
-                aria-selected={!issuer}
-                onClick={() => {
-                  setIssuer("");
-                  setIssuerQuery("");
-                  setIsIssuerOpen(false);
-                }}
+                className="input-clearable__clear"
+                aria-label="Borrar el KM"
+                onClick={() => setKm("")}
               >
-                Todos los emisores
+                <CloseIcon size={16} />
               </button>
-              {filteredIssuers.map((item) => (
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={item.issuer_code === issuer}
-                  key={item.issuer_code}
-                  onClick={() => {
-                    setIssuer(item.issuer_code);
-                    setIssuerQuery("");
-                    setIsIssuerOpen(false);
-                  }}
-                >
-                  {item.issuer_name}
-                </button>
-              ))}
-              {filteredIssuers.length === 0 && (
-                <p>No se encontraron emisores.</p>
-              )}
-            </div>
+            )}
           </div>
-        )}
+        </div>
+
+        <div className="field">
+          <label className="field__label" htmlFor="issuer">
+            País / Emisor (opcional)
+          </label>
+          <IssuerCombobox issuers={issuers} value={issuer} onChange={setIssuer} />
+        </div>
       </div>
-      <button type="submit" disabled={isSearching}>
+
+      <div className="field">
+        <label className="field__label" htmlFor="catalogo">
+          Catálogo
+        </label>
+        <Dropdown
+          id="catalogo"
+          value={catalogue}
+          onChange={(value) => setCatalogue(value as CatalogueChoice)}
+          options={CHOICES}
+        />
+        <p className="field__hint">
+          Con los dos se busca primero en KM y, si no hay nada, en Y#. Fíjalo en
+          uno cuando el mismo número exista en ambos y sean monedas distintas.
+        </p>
+      </div>
+
+      <button type="submit" className="btn btn--primary btn--block" disabled={isSearching}>
+        {!isSearching && <SearchIcon size={18} />}
         {isSearching ? "Buscando…" : "Buscar"}
       </button>
     </form>

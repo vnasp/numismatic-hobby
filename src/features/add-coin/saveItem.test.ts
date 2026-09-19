@@ -124,3 +124,24 @@ test('traduce cualquier otro error de la base de datos a un mensaje genérico en
 
   expect(console.error).toHaveBeenCalled()
 })
+
+test('traduce el índice único (23505) a un aviso de moneda repetida, sin exponer el texto de Postgres', async () => {
+  getUser.mockResolvedValue({ data: { user: { id: 'user-1' } } })
+  single.mockResolvedValue({
+    data: null,
+    error: {
+      code: '23505',
+      message:
+        'duplicate key value violates unique constraint "coins_items_sin_duplicados"',
+    },
+  })
+
+  try {
+    await saveItem(input)
+    expect.unreachable('saveItem debía rechazar')
+  } catch (err) {
+    const message = (err as Error).message
+    expect(message).toMatch(/ya está en tu colección/i)
+    expect(message).not.toMatch(/duplicate key|unique constraint/i)
+  }
+})

@@ -67,7 +67,6 @@ export interface NumistaIssuer {
   code: string
   name: string
   flag?: string
-  wikidata_id?: string
   parent?: { code: string; name: string }
   level?: number
 }

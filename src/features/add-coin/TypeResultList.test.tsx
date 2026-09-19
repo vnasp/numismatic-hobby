@@ -17,13 +17,36 @@ const searchResult: NumistaSearchResultType = {
   category: 'coin',
 }
 
-test('muestra la miniatura de un resultado de búsqueda usando el campo plano obverse_thumbnail', () => {
+test('muestra el reverso de la moneda usando el campo plano reverse_thumbnail', () => {
   // Una <img alt=""> es decorativa y no expone el rol "img", así que se
   // busca por selector en vez de por rol.
   const { container } = render(<TypeResultList types={[searchResult]} onSelect={vi.fn()} />)
 
   const img = container.querySelector('img')
-  expect(img).toHaveAttribute('src', searchResult.obverse_thumbnail)
+  expect(img).toHaveAttribute('src', searchResult.reverse_thumbnail)
+})
+
+test('cae al anverso cuando el resultado no trae foto del reverso', () => {
+  const { container } = render(
+    <TypeResultList
+      types={[{ ...searchResult, reverse_thumbnail: undefined }]}
+      onSelect={vi.fn()}
+    />,
+  )
+
+  expect(container.querySelector('img')).toHaveAttribute(
+    'src',
+    searchResult.obverse_thumbnail,
+  )
+})
+
+test('enlaza a la ficha de la moneda en Numista para poder revisarla', () => {
+  render(<TypeResultList types={[searchResult]} onSelect={vi.fn()} />)
+
+  const link = screen.getByRole('link', { name: /ver 5 Cents - Victoria en numista/i })
+  expect(link).toHaveAttribute('href', 'https://es.numista.com/420')
+  expect(link).toHaveAttribute('target', '_blank')
+  expect(link).toHaveAttribute('rel', expect.stringContaining('noopener'))
 })
 
 test('no muestra una insignia de KM en los resultados de búsqueda', () => {

@@ -41,6 +41,16 @@ test("invoca el proxy con la operación de búsqueda por KM y su issuer", async 
   });
 });
 
+test("envía el catálogo sólo cuando no es KM", async () => {
+  invoke.mockResolvedValue({ data: { count: 0, types: [] }, error: null });
+
+  await searchByKm("42", "venezuela", "Y");
+
+  expect(invoke).toHaveBeenCalledWith("numista-proxy", {
+    body: { op: "searchByKm", km: "42", issuer: "venezuela", catalogue: "Y" },
+  });
+});
+
 test("devuelve los resultados del catálogo", async () => {
   invoke.mockResolvedValue({
     data: { count: 1, types: [{ id: 420, title: "5 Cents - Victoria" }] },
