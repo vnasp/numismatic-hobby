@@ -65,113 +65,113 @@ export function PublicCollectionPage() {
     setParam('continente', value)
   }
 
+  // El contenedor `.app` y el pie los pone `PublicShell`, que es de quien
+  // cuelgan las dos secciones de la vitrina.
   return (
-    <div className="app">
-      <main className="app__main">
-        <div className="page-hero">
-          <PageHeader
-            title="Una colección de monedas"
-            subtitle={
-              data && (
-                <>
-                  {plural(entries.length, 'moneda', 'monedas')} ·{' '}
-                  {plural(allCountries.length, 'país', 'países')}
-                </>
-              )
-            }
-          />
+    <main className="app__main">
+      <div className="page-hero">
+        <PageHeader
+          title="Una colección de monedas"
+          subtitle={
+            data && (
+              <>
+                {plural(entries.length, 'moneda', 'monedas')} ·{' '}
+                {plural(allCountries.length, 'país', 'países')}
+              </>
+            )
+          }
+        />
 
-          {data && continents.length > 1 && (
-            <div className="continent-filter" role="group" aria-label="Filtrar por continente">
+        {data && continents.length > 1 && (
+          <div className="continent-filter" role="group" aria-label="Filtrar por continente">
+            <button
+              type="button"
+              className="continent-filter__option"
+              aria-pressed={!continent}
+              onClick={() => handleContinentChange(null)}
+            >
+              Todos
+            </button>
+            {continents.map((item) => (
               <button
+                key={item.label}
                 type="button"
                 className="continent-filter__option"
-                aria-pressed={!continent}
-                onClick={() => handleContinentChange(null)}
+                aria-pressed={continent === item.label}
+                onClick={() =>
+                  handleContinentChange(continent === item.label ? null : item.label)
+                }
               >
-                Todos
+                {item.label} <span className="continent-filter__count">{item.count}</span>
               </button>
-              {continents.map((item) => (
-                <button
-                  key={item.label}
-                  type="button"
-                  className="continent-filter__option"
-                  aria-pressed={continent === item.label}
-                  onClick={() =>
-                    handleContinentChange(continent === item.label ? null : item.label)
-                  }
-                >
-                  {item.label} <span className="continent-filter__count">{item.count}</span>
-                </button>
-              ))}
-            </div>
-          )}
+            ))}
+          </div>
+        )}
 
-          {data && entries.length > 0 && (
-            <div className="filters">
-              <div className="searchbox">
-                <span className="searchbox__icon">
-                  <SearchIcon size={18} />
-                </span>
-                <input
-                  className="searchbox__input"
-                  type="search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Buscar en la colección…"
-                  aria-label="Buscar en la colección"
-                />
-              </div>
-              <Dropdown
-                className="dropdown--pill filters__country"
-                ariaLabel="Filtrar por país"
-                value={country ?? ''}
-                onChange={(value) => setParam('pais', value)}
-                options={[
-                  { value: '', label: 'Todas' },
-                  ...countries.map((item) => ({
-                    value: item.name,
-                    label: item.name,
-                    hint: String(item.count),
-                  })),
-                ]}
+        {data && entries.length > 0 && (
+          <div className="filters">
+            <div className="searchbox">
+              <span className="searchbox__icon">
+                <SearchIcon size={18} />
+              </span>
+              <input
+                className="searchbox__input"
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Buscar en la colección…"
+                aria-label="Buscar en la colección"
               />
             </div>
-          )}
+            <Dropdown
+              className="dropdown--pill filters__country"
+              ariaLabel="Filtrar por país"
+              value={country ?? ''}
+              onChange={(value) => setParam('pais', value)}
+              options={[
+                { value: '', label: 'Todas' },
+                ...countries.map((item) => ({
+                  value: item.name,
+                  label: item.name,
+                  hint: String(item.count),
+                })),
+              ]}
+            />
+          </div>
+        )}
+      </div>
+
+      {isLoading && <p className="notice">Cargando colección…</p>}
+      {error && (
+        <p className="alert alert--error" role="alert">
+          {(error as Error).message}
+        </p>
+      )}
+
+      {data && entries.length === 0 && (
+        <div className="notice">
+          <p className="notice__title">Todavía no hay monedas</p>
+          <p>Vuelve más adelante: la vitrina se va llenando de a poco.</p>
         </div>
+      )}
 
-        {isLoading && <p className="notice">Cargando colección…</p>}
-        {error && (
-          <p className="alert alert--error" role="alert">
-            {(error as Error).message}
-          </p>
-        )}
+      {data && entries.length > 0 && visible.length === 0 && (
+        <div className="notice">
+          <p className="notice__title">Ninguna moneda coincide</p>
+          <p>Prueba con otro texto o quita los filtros.</p>
+        </div>
+      )}
 
-        {data && entries.length === 0 && (
-          <div className="notice">
-            <p className="notice__title">Todavía no hay monedas</p>
-            <p>Vuelve más adelante: la vitrina se va llenando de a poco.</p>
-          </div>
-        )}
-
-        {data && entries.length > 0 && visible.length === 0 && (
-          <div className="notice">
-            <p className="notice__title">Ninguna moneda coincide</p>
-            <p>Prueba con otro texto o quita los filtros.</p>
-          </div>
-        )}
-
-        {visible.length > 0 && (
-          <ul className="coin-grid">
-            {visible.map((entry) => (
-              <li key={entry.id}>
-                {/* Sin acciones: la tarjeta queda en modo lectura. */}
-                <CoinCard entry={entry} />
-              </li>
-            ))}
-          </ul>
-        )}
-      </main>
-    </div>
+      {visible.length > 0 && (
+        <ul className="coin-grid">
+          {visible.map((entry) => (
+            <li key={entry.id}>
+              {/* Sin acciones: la tarjeta queda en modo lectura. */}
+              <CoinCard entry={entry} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </main>
   )
 }

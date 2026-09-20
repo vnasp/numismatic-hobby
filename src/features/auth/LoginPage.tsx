@@ -105,9 +105,6 @@ export function LoginPage() {
       <main className="auth">
         <div className="auth__brand">
           <h1>Mi Colección de Monedas</h1>
-          <p className="auth__tagline">
-            Tu vitrina personal, catalogada por número KM.
-          </p>
         </div>
 
         <form className="form card" onSubmit={handleSubmit}>

@@ -1,141 +1,99 @@
 import { useMemo } from 'react'
+import { useAuth } from '../auth/AuthProvider'
 import { AccountMenu } from '../shell/AccountMenu'
+import { AppShell } from '../shell/AppShell'
 import { PageHeader } from '../shell/PageHeader'
-import {
-  countryTallies,
-  decadeTallies,
-  diameterTallies,
-  gradeTallies,
-  materialTallies,
-  unvaluedCount,
-  valueTotals,
-  type Tally,
-} from '../collection/collectionData'
-import { formatMoney } from '../../lib/money'
+import { DownloadIcon } from '../shell/icons'
+import { PublicShell } from '../public/PublicShell'
 import { useCollection } from '../collection/useCollection'
+import { usePublicCollection } from '../public/usePublicCollection'
+import { StatsView } from './StatsView'
+import { downloadCsv } from './collectionCsv'
+import { applyStatsFilter, isFilterActive, useStatsFilter } from './statsFilter'
+import type { CollectionEntry } from '../collection/useCollection'
 
-function TallySection({
-  title,
-  tallies,
-  hint,
-}: {
-  title: string
-  tallies: Tally[]
-  /** Una línea para explicar cómo se agrupó, cuando no es evidente. */
-  hint?: string
-}) {
-  if (tallies.length === 0) return null
-  const max = Math.max(...tallies.map((t) => t.count))
+/**
+ * La descarga.
+ *
+ * Baja lo que está a la vista: sin filtros puestos eso es la colección
+ * entera, y con un cruce armado es justo ese cruce, que suele ser el motivo
+ * por el que alguien quiere el archivo. El botón dice cuántas filas van a
+ * salir para que no haya sorpresa al abrirlo.
+ */
+function ExportButton({ entries }: { entries: CollectionEntry[] }) {
+  const { filter } = useStatsFilter()
+  const visible = useMemo(() => applyStatsFilter(entries, filter), [entries, filter])
+
+  if (visible.length === 0) return null
 
   return (
-    <section className="card stats__section">
-      <h2>{title}</h2>
-      {hint && <p className="stats__hint">{hint}</p>}
-      <ul className="tally-list">
-        {tallies.map((tally) => (
-          <li key={tally.label}>
-            <div className="tally">
-              <span className="tally__label">{tally.label}</span>
-              <span className="tally__count">{tally.count}</span>
-              <span
-                className="tally__bar"
-                style={{ inlineSize: `${(tally.count / max) * 100}%` }}
-                aria-hidden="true"
-              />
-            </div>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <div className="stats__export">
+      <button type="button" className="btn btn--ghost" onClick={() => downloadCsv(visible)}>
+        <DownloadIcon size={18} />
+        {isFilterActive(filter)
+          ? `Exportar estas ${visible.length} a CSV`
+          : `Exportar la colección a CSV (${visible.length})`}
+      </button>
+      <p className="stats__export-hint">
+        Una fila por moneda, con la valoración y todo lo que la vitrina no muestra.
+      </p>
+    </div>
   )
 }
 
+/**
+ * `/stats`: una sola pantalla para las dos mitades de la app.
+ *
+ * Con sesión lee `coins_items` y muestra la colección completa —la
+ * valoración, el material, los tamaños de cartón, la conservación y las
+ * favoritas—; sin ella lee la vista pública y eso no aparece: queda el
+ * catálogo, que es de dónde son las monedas y de cuándo. No es una
+ * pantalla que oculte campos: el recorte empieza en qué se consulta, y
+ * `showPrivate` sólo evita dibujar secciones que sin sesión quedarían
+ * vacías o dirían más de la colección de lo que corresponde contarle a
+ * quien pasa.
+ *
+ * Los dos hooks se llaman siempre y se apaga el que no toca: llamar a uno u
+ * otro según la sesión rompería la regla de los hooks.
+ */
 export function StatsPage() {
-  const { data, isLoading, error } = useCollection()
-  const entries = useMemo(() => data ?? [], [data])
+  const { session, loading } = useAuth()
+  const privada = Boolean(session)
 
-  const countries = useMemo(() => countryTallies(entries), [entries])
-  const grades = useMemo(() => gradeTallies(entries), [entries])
-  const decades = useMemo(() => decadeTallies(entries), [entries])
-  const materials = useMemo(() => materialTallies(entries), [entries])
-  const diameters = useMemo(() => diameterTallies(entries), [entries])
-  const favorites = useMemo(() => entries.filter((e) => e.isFavorite).length, [entries])
-  const totals = useMemo(() => valueTotals(entries), [entries])
-  const unvalued = useMemo(() => unvaluedCount(entries), [entries])
+  const propia = useCollection({ enabled: !loading && privada })
+  const publica = usePublicCollection({ enabled: !loading && !privada })
+  const { data, isLoading, error } = privada ? propia : publica
+
+  const entries = data ?? []
 
   return (
-    <main className="app__main stack">
-      <div className="page-hero">
-        <PageHeader title="Estadísticas" action={<AccountMenu />} />
-      </div>
-
-      {isLoading && <p className="notice">Cargando colección…</p>}
-      {error && (
-        <p className="alert alert--error" role="alert">
-          {(error as Error).message}
-        </p>
-      )}
-
-      {data && entries.length === 0 && (
-        <div className="notice">
-          <p className="notice__title">Todavía no hay nada que contar</p>
-          <p>Agrega tu primera moneda y las estadísticas aparecerán aquí.</p>
-        </div>
-      )}
-
-      {entries.length > 0 && (
-        <>
-          <ul className="figures">
-            <li className="figure">
-              <span className="figure__value">{entries.length}</span>
-              <span className="figure__label">Monedas</span>
-            </li>
-            <li className="figure">
-              <span className="figure__value">{countries.length}</span>
-              <span className="figure__label">Países</span>
-            </li>
-            <li className="figure">
-              <span className="figure__value">{favorites}</span>
-              <span className="figure__label">Favoritas</span>
-            </li>
-          </ul>
-
-          {/* Las valoraciones se anotan a mano, así que puede haber monedas sin
-              valor y valores en distintas monedas. Cada una lleva su total: no
-              hay tipo de cambio con que sumarlas. */}
-          {(totals.length > 0 || unvalued < entries.length) && (
-            <section className="card stats__section">
-              <h2>Valoración</h2>
-              <ul className="figures">
-                {totals.map((total) => (
-                  <li className="figure" key={total.currency}>
-                    <span className="figure__value figure__value--money">
-                      {formatMoney(total.total, total.currency)}
-                    </span>
-                    <span className="figure__label">
-                      {total.count === 1 ? '1 moneda valorada' : `${total.count} monedas valoradas`}
-                    </span>
-                  </li>
-                ))}
-                <li className="figure">
-                  <span className="figure__value">{unvalued}</span>
-                  <span className="figure__label">Sin valorar</span>
-                </li>
-              </ul>
-            </section>
-          )}
-
-          <TallySection title="Por país" tallies={countries.map((c) => ({ label: c.name, count: c.count }))} />
-          <TallySection title="Por década" tallies={decades} />
-          <TallySection title="Por material" tallies={materials} />
-          <TallySection
-            title="Por diámetro"
-            tallies={diameters}
-            hint="Cada moneda cuenta en la ventana de cartón más chica en la que entra."
+    <StatsView
+      entries={entries}
+      isLoading={loading || isLoading}
+      error={error}
+      showPrivate={privada}
+      header={
+        privada ? (
+          <PageHeader title="Estadísticas" action={<AccountMenu />} />
+        ) : (
+          <PageHeader
+            title="La colección en números"
+            subtitle="Cruza continente, país y década."
           />
-          <TallySection title="Por conservación" tallies={grades} />
-        </>
-      )}
-    </main>
+        )
+      }
+      action={privada ? <ExportButton entries={entries} /> : null}
+    />
   )
+}
+
+/**
+ * El armazón de `/stats`, que cambia con la sesión.
+ *
+ * Es la misma barra de pestañas en los dos casos, con las secciones que
+ * corresponden: las cuatro de la app con sesión, o las dos de la vitrina.
+ */
+export function StatsShell() {
+  const { session } = useAuth()
+  return session ? <AppShell /> : <PublicShell />
 }

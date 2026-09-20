@@ -37,9 +37,13 @@ interface Row {
  * Devuelve el mismo `CollectionEntry` que la vista privada para poder
  * reutilizar la tarjeta y los filtros; lo que la vista pública no trae queda
  * en su valor neutro.
+ *
+ * `enabled: false` la deja sin disparar: en `/stats`, que sirve a las dos
+ * mitades, se apaga la consulta que no corresponde a la sesión.
  */
-export function usePublicCollection() {
+export function usePublicCollection({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
+    enabled,
     queryKey: ['public-collection'],
     queryFn: async (): Promise<CollectionEntry[]> => {
       const { data, error } = await supabase
