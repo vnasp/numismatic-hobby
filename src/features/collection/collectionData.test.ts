@@ -4,6 +4,7 @@ import {
   filterEntries,
   gradeTallies,
   decadeTallies,
+  diameterTallies,
   findDuplicate,
   sortEntries,
   materialTallies,
@@ -369,5 +370,45 @@ describe('sortEntries por año en otros calendarios', () => {
     )
 
     expect(result.map((e) => e.title)).toEqual(['Chile', 'Israel'])
+  })
+})
+
+describe('diameterTallies', () => {
+  test('agrupa cada moneda en la ventana de cartón más chica en que entra', () => {
+    const result = diameterTallies([
+      // Justo en el borde: 20 mm entra en el cartón de 20, no en el de 22,5.
+      entry({ diameterMm: 20 }),
+      entry({ diameterMm: 19.4 }),
+      entry({ diameterMm: 23 }),
+      entry({ diameterMm: 16 }),
+      entry({ diameterMm: 14 }),
+      entry({ diameterMm: 36 }),
+    ])
+
+    expect(result).toEqual([
+      { label: '15 mm', count: 1 },
+      { label: '17,5 mm', count: 1 },
+      { label: '20 mm', count: 2 },
+      { label: '25 mm', count: 1 },
+      { label: '37,5 mm', count: 1 },
+    ])
+  })
+
+  test('sin ninguna medida registrada no devuelve nada', () => {
+    expect(diameterTallies([entry({ diameterMm: null })])).toEqual([])
+  })
+
+  test('deja al final lo que no cabe en un cartón y lo que no tiene medida', () => {
+    const result = diameterTallies([
+      entry({ diameterMm: 45 }),
+      entry({ diameterMm: null }),
+      entry({ diameterMm: 25 }),
+    ])
+
+    expect(result).toEqual([
+      { label: '25 mm', count: 1 },
+      { label: 'Más de 39,5 mm', count: 1 },
+      { label: 'Sin diámetro', count: 1 },
+    ])
   })
 })
