@@ -265,6 +265,32 @@
   }
 }
 
+/**
+ * Las 500+ fichas se montan todas juntas, sin paginar. `content-visibility`
+ * hace que el navegador se salte el dibujado y el cálculo de posición de las
+ * que están fuera de pantalla, sin sacarlas del DOM: el Ctrl+F del navegador
+ * y los lectores de pantalla las siguen encontrando.
+ *
+ * `contain-intrinsic-size: auto <alto>` es lo que evita que la barra de
+ * scroll salte: mientras una ficha no se ha dibujado nunca, el navegador
+ * reserva ese alto estimado, y desde que la dibujó una vez recuerda el real.
+ */
+.coin-grid > li {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 280px;
+}
+
+@media (min-width: 768px) {
+  .coin-grid > li {
+    contain-intrinsic-size: auto 330px;
+  }
+}
+
+/* En lista cada ficha es una fila baja. */
+.coin-grid--list > li {
+  contain-intrinsic-size: auto 104px;
+}
+
 .coin-card {
   display: flex;
   flex-direction: column;
@@ -342,8 +368,46 @@
 }
 
 .coin-card:hover .coin-card__img--back,
-.coin-card:focus-within .coin-card__img--back {
+.coin-card:focus-within .coin-card__img--back,
+.coin-card__disc--flipped .coin-card__img--back {
   opacity: 1;
+}
+
+/* Girar la moneda con flechas: es el reemplazo del hover donde no hay
+   puntero. En un dispositivo con mouse no aparecen, porque ahí basta con
+   pasar por encima y dos botones más sobre cada ficha serían ruido. */
+.coin-card__flip {
+  position: absolute;
+  top: 50%;
+  display: none;
+  place-items: center;
+  width: 32px;
+  height: 44px;
+  transform: translateY(-50%);
+  border: 0;
+  background: none;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.coin-card__flip--prev {
+  left: 0;
+}
+
+.coin-card__flip--next {
+  right: 0;
+}
+
+@media (hover: none) {
+  .coin-card__flip {
+    display: grid;
+  }
+
+  /* En la lista la moneda mide 84px: las flechas la taparían y además
+     chocarían con el corazón y la papelera, que ahí van a la derecha. */
+  .coin-grid--list .coin-card__flip {
+    display: none;
+  }
 }
 
 /* Sin foto: un disco vacío marca el lugar de la pieza que falta fotografiar. */

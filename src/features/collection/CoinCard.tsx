@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { gradeName, gradeShort } from '../../lib/grades'
 import { formatReference } from '../../../shared/numista/references'
-import { TrashIcon } from '../shell/icons'
+import { ChevronLeftIcon, ChevronRightIcon, TrashIcon } from '../shell/icons'
 import type { CollectionEntry } from './useCollection'
 
 interface Props {
@@ -18,6 +18,10 @@ export function CoinCard({ entry, onToggleFavorite, onDelete, onOpen }: Props) {
   // imagen en vez de dejar el ícono roto en la grilla de 200+ monedas.
   const [imgFailed, setImgFailed] = useState(false)
   const [backFailed, setBackFailed] = useState(false)
+  // En el celular no hay puntero que pase por encima, así que la otra cara se
+  // gira con las flechas. En escritorio el hover sigue funcionando y estas
+  // flechas ni se muestran.
+  const [flipped, setFlipped] = useState(false)
 
   const hasImage = Boolean(entry.thumbnail) && !imgFailed
   const hasBack = hasImage && Boolean(entry.thumbnailBack) && !backFailed
@@ -30,7 +34,9 @@ export function CoinCard({ entry, onToggleFavorite, onDelete, onOpen }: Props) {
       <div className={`coin-card__well${hasImage ? '' : ' coin-card__well--empty'}`}>
         {hasImage ? (
           <Opener entry={entry} onOpen={onOpen}>
-            <span className="coin-card__disc">
+            <span
+              className={`coin-card__disc${flipped ? ' coin-card__disc--flipped' : ''}`}
+            >
               <img
                 className="coin-card__img"
                 src={entry.thumbnail!}
@@ -40,9 +46,10 @@ export function CoinCard({ entry, onToggleFavorite, onDelete, onOpen }: Props) {
                 loading="lazy"
                 onError={() => setImgFailed(true)}
               />
-              {/* La otra cara se apila encima y aparece al pasar el puntero o
-                  al enfocar la ficha con el teclado. Es decorativa: el dato
-                  que identifica la moneda ya está en el título. */}
+              {/* La otra cara se apila encima y aparece al pasar el puntero,
+                  al enfocar la ficha con el teclado o al girarla con las
+                  flechas. Es decorativa: el dato que identifica la moneda ya
+                  está en el título. */}
               {hasBack && (
                 <img
                   className="coin-card__img coin-card__img--back"
@@ -60,6 +67,29 @@ export function CoinCard({ entry, onToggleFavorite, onDelete, onOpen }: Props) {
           // Sin foto se conserva el hueco circular para que la grilla no se
           // desarme: todas las fichas mantienen la misma altura.
           <span className="coin-card__placeholder" aria-hidden="true" />
+        )}
+
+        {/* Las flechas viven fuera del botón que abre la ficha: un botón no
+            puede contener otro. */}
+        {hasBack && (
+          <>
+            <button
+              type="button"
+              className="coin-card__flip coin-card__flip--prev"
+              aria-label={`Ver la otra cara de ${entry.title}`}
+              onClick={() => setFlipped((current) => !current)}
+            >
+              <ChevronLeftIcon size={18} />
+            </button>
+            <button
+              type="button"
+              className="coin-card__flip coin-card__flip--next"
+              aria-label={`Ver la otra cara de ${entry.title}`}
+              onClick={() => setFlipped((current) => !current)}
+            >
+              <ChevronRightIcon size={18} />
+            </button>
+          </>
         )}
 
         {onToggleFavorite && (

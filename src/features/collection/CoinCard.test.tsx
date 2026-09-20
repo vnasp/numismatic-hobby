@@ -91,9 +91,14 @@ test('el corazón queda presionado y ofrece quitarla cuando ya es favorita', () 
   expect(fav).toHaveAttribute('aria-pressed', 'true')
 })
 
-test('no muestra el corazón cuando la ficha es de sólo lectura', () => {
+test('sin acciones no hay corazón, papelera ni ficha: sólo girar la moneda', () => {
   render(<CoinCard entry={entry} />)
-  expect(screen.queryByRole('button')).not.toBeInTheDocument()
+
+  expect(screen.queryByRole('button', { name: /favorita/i })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: /eliminar/i })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: /ver la ficha/i })).not.toBeInTheDocument()
+  // Las flechas sí quedan: girar la moneda se puede mirando, no editando.
+  expect(screen.getAllByRole('button', { name: /ver la otra cara/i })).toHaveLength(2)
 })
 
 test('carga las dos caras cuando Numista tiene ambas fotos', () => {
@@ -110,4 +115,35 @@ test('sin foto de la otra cara muestra una sola imagen', () => {
 
   expect(container.querySelectorAll('img')).toHaveLength(1)
   expect(container.querySelector('.coin-card__img--back')).not.toBeInTheDocument()
+})
+
+test('gira la moneda con las flechas, para el celular que no tiene hover', async () => {
+  const user = userEvent.setup()
+  const { container } = render(<CoinCard entry={entry} />)
+
+  const disco = container.querySelector('.coin-card__disc')!
+  expect(disco).not.toHaveClass('coin-card__disc--flipped')
+
+  const flechas = screen.getAllByRole('button', { name: /ver la otra cara de/i })
+  expect(flechas).toHaveLength(2)
+
+  await user.click(flechas[1])
+  expect(disco).toHaveClass('coin-card__disc--flipped')
+
+  await user.click(flechas[0])
+  expect(disco).not.toHaveClass('coin-card__disc--flipped')
+})
+
+test('sin segunda foto no hay flechas que girar', () => {
+  render(<CoinCard entry={{ ...entry, thumbnailBack: null }} />)
+
+  expect(screen.queryByRole('button', { name: /ver la otra cara/i })).not.toBeInTheDocument()
+})
+
+test('las flechas no van dentro del botón que abre la ficha', () => {
+  render(<CoinCard entry={entry} onOpen={vi.fn()} />)
+
+  const abrir = screen.getByRole('button', { name: /ver la ficha de/i })
+  const flecha = screen.getAllByRole('button', { name: /ver la otra cara de/i })[0]
+  expect(abrir).not.toContainElement(flecha)
 })
