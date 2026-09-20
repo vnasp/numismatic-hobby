@@ -41,3 +41,11 @@ test('marca como activa sólo la sección en que se está', () => {
   expect(screen.getByRole('link', { name: 'Países' })).toHaveClass('tabbar__tab--active')
   expect(screen.getByRole('link', { name: 'Colección' })).not.toHaveClass('tabbar__tab--active')
 })
+
+test('la pestaña de colección apunta a la ruta privada, no a la raíz', () => {
+  renderTabBar('/coleccion')
+
+  const coleccion = screen.getByRole('link', { name: 'Colección' })
+  expect(coleccion).toHaveAttribute('href', '/coleccion')
+  expect(coleccion).toHaveClass('tabbar__tab--active')
+})

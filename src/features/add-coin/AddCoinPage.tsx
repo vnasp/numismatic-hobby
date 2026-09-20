@@ -87,7 +87,7 @@ export function AddCoinPage() {
       // visita anterior a "/": se invalida para que la moneda recién
       // guardada aparezca sin depender de un refresco manual.
       queryClient.invalidateQueries({ queryKey: ["collection"] });
-      navigate("/");
+      navigate("/coleccion");
     },
   });
 
@@ -151,7 +151,7 @@ export function AddCoinPage() {
       handleBackToSearch();
       return;
     }
-    navigate("/");
+    navigate("/coleccion");
   }
 
   const backLabel =
