@@ -5,6 +5,7 @@ import {
   countryTallies,
   decadeTallies,
   gradeTallies,
+  materialTallies,
   unvaluedCount,
   valueTotals,
   type Tally,
@@ -45,6 +46,7 @@ export function StatsPage() {
   const countries = useMemo(() => countryTallies(entries), [entries])
   const grades = useMemo(() => gradeTallies(entries), [entries])
   const decades = useMemo(() => decadeTallies(entries), [entries])
+  const materials = useMemo(() => materialTallies(entries), [entries])
   const favorites = useMemo(() => entries.filter((e) => e.isFavorite).length, [entries])
   const totals = useMemo(() => valueTotals(entries), [entries])
   const unvalued = useMemo(() => unvaluedCount(entries), [entries])
@@ -113,6 +115,7 @@ export function StatsPage() {
 
           <TallySection title="Por país" tallies={countries.map((c) => ({ label: c.name, count: c.count }))} />
           <TallySection title="Por década" tallies={decades} />
+          <TallySection title="Por material" tallies={materials} />
           <TallySection title="Por conservación" tallies={grades} />
         </>
       )}

@@ -14,6 +14,7 @@ const entry: CollectionEntry = {
   continent: null,
   reference: { code: 'KM', number: '2' },
   issueYear: 1870,
+  gregorianYear: 1870,
   mintLetter: null,
   thumbnail: 'https://ejemplo.cl/reverso.jpg',
   thumbnailBack: 'https://ejemplo.cl/anverso.jpg',

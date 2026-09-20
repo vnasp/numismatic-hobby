@@ -50,6 +50,11 @@ function entry(overrides: Partial<CollectionEntry> = {}): CollectionEntry {
     value: null,
     isFavorite: false,
     ...overrides,
+    // Por defecto el año gregoriano sigue al de la moneda: sólo los casos que
+    // prueban otros calendarios los separan a propósito.
+    gregorianYear:
+      overrides.gregorianYear ??
+      ('issueYear' in overrides ? overrides.issueYear! : 1955),
   }
 }
 

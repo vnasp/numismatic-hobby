@@ -1,11 +1,11 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { numistaTypeUrl } from "../../../shared/numista/urls";
 import { formatReference } from "../../../shared/numista/references";
-import { gradeLabel } from "../../lib/grades";
+import { GRADES, gradeLabel, type GradeCode } from "../../lib/grades";
 import { CloseIcon, ExternalIcon } from "../shell/icons";
 import { Dropdown } from "../shell/Dropdown";
 import type { CollectionEntry } from "./useCollection";
-import { useSaveValue } from "./useSaveValue";
+import { useSaveItem } from "./useSaveItem";
 
 interface Props {
   entry: CollectionEntry;
@@ -41,12 +41,13 @@ function formatDate(iso: string): string {
 export function CoinDetail({ entry, onClose }: Props) {
   const titleId = useId();
   const closeRef = useRef<HTMLButtonElement>(null);
-  const save = useSaveValue();
+  const save = useSaveItem();
 
   const [amount, setAmount] = useState(
     entry.value ? String(entry.value.amount) : "",
   );
   const [currency, setCurrency] = useState(entry.value?.currency ?? "CLP");
+  const [grade, setGrade] = useState<GradeCode | "">(entry.grade ?? "");
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -62,15 +63,22 @@ export function CoinDetail({ entry, onClose }: Props) {
 
   const facts: { label: string; value: string }[] = [];
   if (entry.issuerName) facts.push({ label: "País", value: entry.issuerName });
-  if (entry.issueYear)
+  if (entry.issueYear) {
     facts.push({ label: "Año", value: String(entry.issueYear) });
+    // El año que lleva la moneda no siempre es del calendario gregoriano: una
+    // israelí fechada 5745 es de 1985, y así hay que contarla.
+    if (entry.gregorianYear && entry.gregorianYear !== entry.issueYear) {
+      facts.push({
+        label: "Año gregoriano",
+        value: String(entry.gregorianYear),
+      });
+    }
+  }
   // La ceca va aparte del año: el precio de Numista es por año y ceca.
   if (entry.mintLetter) facts.push({ label: "Ceca", value: entry.mintLetter });
   if (entry.reference) {
     facts.push({ label: "Catálogo", value: formatReference(entry.reference) });
   }
-  if (entry.grade)
-    facts.push({ label: "Conservación", value: gradeLabel(entry.grade) });
   if (entry.material) facts.push({ label: "Material", value: entry.material });
   if (entry.diameterMm) {
     facts.push({
@@ -86,7 +94,12 @@ export function CoinDetail({ entry, onClose }: Props) {
     const trimmed = amount.trim().replace(",", ".");
     const parsed = trimmed === "" ? null : Number(trimmed);
     if (parsed !== null && (Number.isNaN(parsed) || parsed < 0)) return;
-    save.mutate({ id: entry.id, amount: parsed, currency });
+    save.mutate({
+      id: entry.id,
+      grade: grade === "" ? null : grade,
+      amount: parsed,
+      currency,
+    });
   }
 
   return (
@@ -134,7 +147,25 @@ export function CoinDetail({ entry, onClose }: Props) {
         )}
 
         <form className="detail__value" onSubmit={handleSubmit}>
-          <h3 className="detail__subtitle">Valoración</h3>
+          <h3 className="detail__subtitle">Lo que puedes corregir</h3>
+
+          <div className="field">
+            <label className="field__label" htmlFor={`grado-${entry.id}`}>
+              Estado de conservación
+            </label>
+            <Dropdown
+              id={`grado-${entry.id}`}
+              value={grade}
+              onChange={(value) => setGrade(value as GradeCode | "")}
+              options={[
+                { value: "", label: "Sin especificar" },
+                ...GRADES.map((g) => ({
+                  value: g.code,
+                  label: gradeLabel(g.code),
+                })),
+              ]}
+            />
+          </div>
 
           <div className="detail__value-row">
             <div className="field">
@@ -176,9 +207,7 @@ export function CoinDetail({ entry, onClose }: Props) {
               {entry.value.source ? ` · ${entry.value.source}` : ""}
             </p>
           )}
-          {save.isSuccess && (
-            <p className="field__hint">Valoración guardada.</p>
-          )}
+          {save.isSuccess && <p className="field__hint">Cambios guardados.</p>}
 
           <div className="dialog__actions">
             <a

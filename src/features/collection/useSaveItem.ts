@@ -1,29 +1,34 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../../lib/supabase/client'
 import { mapPostgresError } from '../../lib/postgresErrorMessage'
+import type { GradeCode } from '../../lib/grades'
 
-export interface SaveValueInput {
+export interface SaveItemInput {
   id: string
+  /** Null deja la conservación sin especificar. */
+  grade: GradeCode | null
   /** Null borra la valoración anotada. */
   amount: number | null
   currency: string
 }
 
 /**
- * Guarda la valoración anotada a mano para un ejemplar.
+ * Guarda lo que la usuaria puede corregir de un ejemplar: su estado de
+ * conservación y su valoración.
  *
- * No es optimista: es un dato que se escribe de a poco y conviene que el
+ * No es optimista: son datos que se escriben de a poco y conviene que el
  * "Guardado" aparezca recién cuando Postgres confirmó, para no dar por buena
- * una cifra que no quedó.
+ * una corrección que no quedó.
  */
-export function useSaveValue() {
+export function useSaveItem() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, amount, currency }: SaveValueInput) => {
+    mutationFn: async ({ id, grade, amount, currency }: SaveItemInput) => {
       const { error } = await supabase
         .from('coins_items')
         .update({
+          grade,
           estimated_value: amount,
           value_currency: amount == null ? null : currency,
           // Se pisa la procedencia: el número lo escribió la usuaria, ya no
@@ -34,10 +39,10 @@ export function useSaveValue() {
         .eq('id', id)
 
       if (error) {
-        console.error('useSaveValue: error al actualizar coins_items', error)
+        console.error('useSaveItem: error al actualizar coins_items', error)
         throw new Error(
           mapPostgresError(error, {
-            fallback: 'No se pudo guardar la valoración. Inténtalo de nuevo.',
+            fallback: 'No se pudieron guardar los cambios. Inténtalo de nuevo.',
           }),
         )
       }

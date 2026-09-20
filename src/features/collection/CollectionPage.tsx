@@ -37,8 +37,8 @@ export function CollectionPage() {
   const [query, setQuery] = useState('')
 
   // El país filtrado vive en la URL y no en el estado del componente, para que
-  // la página de Países pueda enlazar directo a "/?pais=Chile" y para que el
-  // botón atrás del navegador deshaga el filtro.
+  // la página de Países pueda enlazar directo a "/coleccion?pais=Chile" y para
+  // que el botón atrás del navegador deshaga el filtro.
   const [params, setParams] = useSearchParams()
   const country = params.get('pais')
   const continent = params.get('continente')
