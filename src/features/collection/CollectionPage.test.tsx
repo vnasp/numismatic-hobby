@@ -308,7 +308,7 @@ test('abre la ficha de la moneda desde la tarjeta', async () => {
   ]
   renderPage()
 
-  await user.click(screen.getByRole('button', { name: /ver la ficha de 1 Colón/i }))
+  await user.click(screen.getByRole('button', { name: '1 Colón' }))
 
   const ficha = screen.getByRole('dialog')
   expect(ficha).toHaveTextContent('Acero inoxidable')

@@ -298,7 +298,12 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--surface);
-  box-shadow: var(--shadow-card);
+  /* El canto de arriba lleva una línea clara propia: la sombra define los
+     otros tres lados, y el haz de luz del nicho le quita contraste justo
+     ahí, así que sin esto la ficha parecía abierta por arriba. */
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 7%),
+    var(--shadow-card);
   transition:
     border-color 0.2s ease,
     transform 0.2s ease;
@@ -373,44 +378,6 @@
   opacity: 1;
 }
 
-/* Girar la moneda con flechas: es el reemplazo del hover donde no hay
-   puntero. En un dispositivo con mouse no aparecen, porque ahí basta con
-   pasar por encima y dos botones más sobre cada ficha serían ruido. */
-.coin-card__flip {
-  position: absolute;
-  top: 50%;
-  display: none;
-  place-items: center;
-  width: 32px;
-  height: 44px;
-  transform: translateY(-50%);
-  border: 0;
-  background: none;
-  color: var(--text-dim);
-  cursor: pointer;
-}
-
-.coin-card__flip--prev {
-  left: 0;
-}
-
-.coin-card__flip--next {
-  right: 0;
-}
-
-@media (hover: none) {
-  .coin-card__flip {
-    display: grid;
-  }
-
-  /* En la lista la moneda mide 84px: las flechas la taparían y además
-     chocarían con el corazón y la papelera, que ahí van a la derecha. */
-  .coin-grid--list .coin-card__flip {
-    display: none;
-  }
-}
-
-/* Sin foto: un disco vacío marca el lugar de la pieza que falta fotografiar. */
 .coin-card__placeholder {
   width: 100%;
   aspect-ratio: 1;
@@ -1110,8 +1077,10 @@
 
 .searchbox__input {
   width: 100%;
+  /* Mismo alto que el desplegable de al lado: con el padding vertical de 12px
+     el campo crecía a 48px y la fila quedaba despareja. */
   min-height: 44px;
-  padding: var(--space-3) var(--space-3) var(--space-3) 42px;
+  padding: var(--space-2) var(--space-3) var(--space-2) 42px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-pill);
   background: var(--surface);
@@ -1352,9 +1321,9 @@
   margin-right: auto;
 }
 
-/* La moneda abre su ficha: el botón no debe verse como botón, sólo cambiar el
-   cursor. El foco visible lo pone la regla global de :focus-visible. */
-.coin-card__open {
+/* Tocar la moneda la da vuelta: el botón no debe verse como botón, sólo
+   cambiar el cursor. El foco visible lo pone la regla global. */
+.coin-card__flipper {
   display: block;
   width: 100%;
   padding: 0;
@@ -1362,6 +1331,21 @@
   border-radius: 50%;
   background: none;
   cursor: pointer;
+}
+
+/* El título abre la ficha, y se lee como título y no como botón. */
+.coin-card__open {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.coin-card__open:hover {
+  color: var(--gold-bright);
 }
 
 .dialog__actions {
