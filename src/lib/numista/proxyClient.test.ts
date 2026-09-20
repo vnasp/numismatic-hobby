@@ -1,4 +1,4 @@
-import { searchByKm, searchCatalogue } from "./proxyClient";
+import { browseIssuer, searchByKm, searchCatalogue } from "./proxyClient";
 import {
   NumistaError,
   NumistaQuotaError,
@@ -66,12 +66,44 @@ test("devuelve los resultados del catálogo", async () => {
 test("envía year como string aunque se reciba un número", async () => {
   invoke.mockResolvedValue({ data: { count: 0, types: [] }, error: null });
 
-  // @ts-expect-error se simula un llamador que no respeta el tipo estático
+  // El Edge Function descarta `year` si no llega como string, así que un
+  // año numérico se perdería en silencio.
   await searchCatalogue({ q: "peso", year: 1960 });
 
   expect(invoke).toHaveBeenCalledWith("numista-proxy", {
     body: { op: "search", q: "peso", year: "1960" },
   });
+});
+
+test("recorre un emisor de a 100 y ordenado por número de catálogo", async () => {
+  invoke.mockResolvedValue({ data: { count: 0, types: [] }, error: null });
+
+  await browseIssuer({ issuer: "Chili", date: "1900-2026", page: 2 });
+
+  expect(invoke).toHaveBeenCalledWith("numista-proxy", {
+    body: {
+      op: "search",
+      issuer: "chili",
+      date: "1900-2026",
+      catalogue: "KM",
+      page: 2,
+      count: 100,
+      order: "reference",
+    },
+  });
+});
+
+test("deja pasar el tipo de objeto, para dejar fuera patrones y fichas", async () => {
+  invoke.mockResolvedValue({ data: { count: 0, types: [] }, error: null });
+
+  await browseIssuer({ issuer: "chili", date: "1900-2026", objectType: 1 });
+
+  expect(invoke).toHaveBeenCalledWith(
+    "numista-proxy",
+    expect.objectContaining({
+      body: expect.objectContaining({ objectType: 1 }),
+    }),
+  );
 });
 
 test("traduce el 429 del proxy a un error de cuota", async () => {

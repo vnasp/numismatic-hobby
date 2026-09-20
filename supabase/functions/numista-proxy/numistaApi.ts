@@ -55,11 +55,44 @@ export function listIssuers(): Promise<NumistaIssuersResult> {
   return call('/issuers', {})
 }
 
-export function search(params: { issuer?: string; q?: string; year?: string }): Promise<NumistaSearchResult> {
+export interface SearchParams {
+  issuer?: string
+  q?: string
+  /** Año tal como está escrito en la moneda. */
+  year?: string
+  /** Año gregoriano de emisión, o un rango: `1900-2026`. */
+  date?: string
+  /** Id del catálogo: acota a los tipos que tienen número en él. */
+  catalogueId?: number
+  /** Id del tipo de objeto: 1 son las monedas de circulación estándar. */
+  objectType?: number
+  page?: number
+  count?: number
+  order?: string
+}
+
+/**
+ * Búsqueda en el catálogo.
+ *
+ * Acepta además de `q`/`issuer`/`year` los parámetros que hacen falta para
+ * recorrer un emisor completo: `date` para acotar por período, `catalogue`
+ * para quedarse sólo con los tipos que tienen número en ese catálogo,
+ * `object_type` para dejar fuera patrones y fichas, y la paginación.
+ *
+ * Ojo: la respuesta del listado no trae las referencias. Saber qué número
+ * KM le toca a cada tipo exige después un `GET /types/{id}` por tipo.
+ */
+export function search(params: SearchParams): Promise<NumistaSearchResult> {
   return call('/types', {
     issuer: params.issuer ?? '',
     q: params.q ?? '',
     year: params.year ?? '',
+    date: params.date ?? '',
+    catalogue: params.catalogueId ? String(params.catalogueId) : '',
+    object_type: params.objectType ? String(params.objectType) : '',
+    page: params.page ? String(params.page) : '',
+    count: params.count ? String(params.count) : '',
+    order: params.order ?? '',
   })
 }
 
