@@ -59,7 +59,7 @@ test('no ofrece nada de editar: es una vitrina, no la colección propia', () => 
 
   expect(screen.queryByRole('button', { name: /favorita/i })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: /eliminar/i })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: /ver la ficha/i })).not.toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: '1 Peso' })).not.toBeInTheDocument()
   expect(screen.queryByRole('link', { name: /agregar moneda/i })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: /tu cuenta/i })).not.toBeInTheDocument()
 })

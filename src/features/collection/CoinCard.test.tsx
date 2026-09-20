@@ -91,14 +91,13 @@ test('el corazón queda presionado y ofrece quitarla cuando ya es favorita', () 
   expect(fav).toHaveAttribute('aria-pressed', 'true')
 })
 
-test('sin acciones no hay corazón, papelera ni ficha: sólo girar la moneda', () => {
+test('sin acciones no hay corazón ni papelera: sólo dar vuelta la moneda', () => {
   render(<CoinCard entry={entry} />)
 
   expect(screen.queryByRole('button', { name: /favorita/i })).not.toBeInTheDocument()
   expect(screen.queryByRole('button', { name: /eliminar/i })).not.toBeInTheDocument()
-  expect(screen.queryByRole('button', { name: /ver la ficha/i })).not.toBeInTheDocument()
-  // Las flechas sí quedan: girar la moneda se puede mirando, no editando.
-  expect(screen.getAllByRole('button', { name: /ver la otra cara/i })).toHaveLength(2)
+  // Darla vuelta sí se puede: es mirar, no editar.
+  expect(screen.getByRole('button', { name: /ver la otra cara/i })).toBeInTheDocument()
 })
 
 test('carga las dos caras cuando Numista tiene ambas fotos', () => {
@@ -117,33 +116,40 @@ test('sin foto de la otra cara muestra una sola imagen', () => {
   expect(container.querySelector('.coin-card__img--back')).not.toBeInTheDocument()
 })
 
-test('gira la moneda con las flechas, para el celular que no tiene hover', async () => {
+test('tocar la moneda la da vuelta', async () => {
   const user = userEvent.setup()
   const { container } = render(<CoinCard entry={entry} />)
 
   const disco = container.querySelector('.coin-card__disc')!
   expect(disco).not.toHaveClass('coin-card__disc--flipped')
 
-  const flechas = screen.getAllByRole('button', { name: /ver la otra cara de/i })
-  expect(flechas).toHaveLength(2)
-
-  await user.click(flechas[1])
+  const moneda = screen.getByRole('button', { name: /ver la otra cara de/i })
+  await user.click(moneda)
   expect(disco).toHaveClass('coin-card__disc--flipped')
 
-  await user.click(flechas[0])
+  await user.click(moneda)
   expect(disco).not.toHaveClass('coin-card__disc--flipped')
 })
 
-test('sin segunda foto no hay flechas que girar', () => {
+test('sin segunda foto la moneda no es un botón que no hace nada', () => {
   render(<CoinCard entry={{ ...entry, thumbnailBack: null }} />)
 
   expect(screen.queryByRole('button', { name: /ver la otra cara/i })).not.toBeInTheDocument()
 })
 
-test('las flechas no van dentro del botón que abre la ficha', () => {
-  render(<CoinCard entry={entry} onOpen={vi.fn()} />)
+test('la ficha se abre desde el título, que es el otro clic disponible', async () => {
+  const user = userEvent.setup()
+  const onOpen = vi.fn()
+  render(<CoinCard entry={entry} onOpen={onOpen} />)
 
-  const abrir = screen.getByRole('button', { name: /ver la ficha de/i })
-  const flecha = screen.getAllByRole('button', { name: /ver la otra cara de/i })[0]
-  expect(abrir).not.toContainElement(flecha)
+  await user.click(screen.getByRole('button', { name: '5 Cents - Victoria' }))
+
+  expect(onOpen).toHaveBeenCalledWith(entry)
+})
+
+test('sin acción de abrir, el título es sólo texto', () => {
+  render(<CoinCard entry={entry} />)
+
+  expect(screen.queryByRole('button', { name: '5 Cents - Victoria' })).not.toBeInTheDocument()
+  expect(screen.getByText('5 Cents - Victoria')).toBeInTheDocument()
 })

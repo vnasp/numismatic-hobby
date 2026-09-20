@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { gradeName, gradeShort } from '../../lib/grades'
 import { formatReference } from '../../../shared/numista/references'
-import { ChevronLeftIcon, ChevronRightIcon, TrashIcon } from '../shell/icons'
+import { TrashIcon } from '../shell/icons'
 import type { CollectionEntry } from './useCollection'
 
 interface Props {
@@ -18,9 +18,8 @@ export function CoinCard({ entry, onToggleFavorite, onDelete, onOpen }: Props) {
   // imagen en vez de dejar el ícono roto en la grilla de 200+ monedas.
   const [imgFailed, setImgFailed] = useState(false)
   const [backFailed, setBackFailed] = useState(false)
-  // En el celular no hay puntero que pase por encima, así que la otra cara se
-  // gira con las flechas. En escritorio el hover sigue funcionando y estas
-  // flechas ni se muestran.
+  // En el celular no hay puntero que pase por encima, así que la moneda se da
+  // vuelta tocándola. En escritorio el hover sigue funcionando igual.
   const [flipped, setFlipped] = useState(false)
 
   const hasImage = Boolean(entry.thumbnail) && !imgFailed
@@ -33,7 +32,7 @@ export function CoinCard({ entry, onToggleFavorite, onDelete, onOpen }: Props) {
     <article className="coin-card">
       <div className={`coin-card__well${hasImage ? '' : ' coin-card__well--empty'}`}>
         {hasImage ? (
-          <Opener entry={entry} onOpen={onOpen}>
+          <Flipper entry={entry} enabled={hasBack} onFlip={() => setFlipped((v) => !v)}>
             <span
               className={`coin-card__disc${flipped ? ' coin-card__disc--flipped' : ''}`}
             >
@@ -47,8 +46,8 @@ export function CoinCard({ entry, onToggleFavorite, onDelete, onOpen }: Props) {
                 onError={() => setImgFailed(true)}
               />
               {/* La otra cara se apila encima y aparece al pasar el puntero,
-                  al enfocar la ficha con el teclado o al girarla con las
-                  flechas. Es decorativa: el dato que identifica la moneda ya
+                  al enfocar la ficha con el teclado o al tocar la moneda.
+                  Es decorativa: el dato que identifica la moneda ya
                   está en el título. */}
               {hasBack && (
                 <img
@@ -62,34 +61,11 @@ export function CoinCard({ entry, onToggleFavorite, onDelete, onOpen }: Props) {
                 />
               )}
             </span>
-          </Opener>
+          </Flipper>
         ) : (
           // Sin foto se conserva el hueco circular para que la grilla no se
           // desarme: todas las fichas mantienen la misma altura.
           <span className="coin-card__placeholder" aria-hidden="true" />
-        )}
-
-        {/* Las flechas viven fuera del botón que abre la ficha: un botón no
-            puede contener otro. */}
-        {hasBack && (
-          <>
-            <button
-              type="button"
-              className="coin-card__flip coin-card__flip--prev"
-              aria-label={`Ver la otra cara de ${entry.title}`}
-              onClick={() => setFlipped((current) => !current)}
-            >
-              <ChevronLeftIcon size={18} />
-            </button>
-            <button
-              type="button"
-              className="coin-card__flip coin-card__flip--next"
-              aria-label={`Ver la otra cara de ${entry.title}`}
-              onClick={() => setFlipped((current) => !current)}
-            >
-              <ChevronRightIcon size={18} />
-            </button>
-          </>
         )}
 
         {onToggleFavorite && (
@@ -121,7 +97,17 @@ export function CoinCard({ entry, onToggleFavorite, onDelete, onOpen }: Props) {
       </div>
 
       <div className="coin-card__body">
-        <h3 className="coin-card__title">{entry.title}</h3>
+        <h3 className="coin-card__title">
+          {onOpen ? (
+            // La ficha se abre desde el título: el clic sobre la moneda ya
+            // está tomado para darla vuelta.
+            <button type="button" className="coin-card__open" onClick={() => onOpen(entry)}>
+              {entry.title}
+            </button>
+          ) : (
+            entry.title
+          )}
+        </h3>
         {origin && <p className="coin-card__origin">{origin}</p>}
 
         {(entry.reference || entry.grade) && (
@@ -145,26 +131,29 @@ export function CoinCard({ entry, onToggleFavorite, onDelete, onOpen }: Props) {
 }
 
 /**
- * Envuelve la moneda en un botón cuando hay ficha que abrir, y la deja tal
- * cual cuando no: así la tarjeta sirve igual en contextos de sólo lectura.
+ * Envuelve la moneda en un botón cuando hay una segunda cara que mostrar, y
+ * la deja tal cual cuando Numista sólo tiene una foto: un botón que no hace
+ * nada confunde, sobre todo con lector de pantalla.
  */
-function Opener({
+function Flipper({
   entry,
-  onOpen,
+  enabled,
+  onFlip,
   children,
 }: {
   entry: CollectionEntry
-  onOpen?: (entry: CollectionEntry) => void
+  enabled: boolean
+  onFlip: () => void
   children: React.ReactNode
 }) {
-  if (!onOpen) return <>{children}</>
+  if (!enabled) return <>{children}</>
 
   return (
     <button
       type="button"
-      className="coin-card__open"
-      aria-label={`Ver la ficha de ${entry.title}`}
-      onClick={() => onOpen(entry)}
+      className="coin-card__flipper"
+      aria-label={`Ver la otra cara de ${entry.title}`}
+      onClick={onFlip}
     >
       {children}
     </button>
