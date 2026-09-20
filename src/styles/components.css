@@ -704,11 +704,6 @@
   text-align: center;
 }
 
-.auth__tagline {
-  margin-top: var(--space-2);
-  color: var(--text-muted);
-}
-
 .auth__switch {
   text-align: center;
 }
