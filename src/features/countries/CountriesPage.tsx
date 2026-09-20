@@ -44,7 +44,7 @@ export function CountriesPage() {
             <li key={country.name}>
               <Link
                 className="tally"
-                to={`/?pais=${encodeURIComponent(country.name)}`}
+                to={`/coleccion?pais=${encodeURIComponent(country.name)}`}
                 aria-label={`Ver las ${country.count} monedas de ${country.name}`}
               >
                 <span className="tally__label">{country.name}</span>

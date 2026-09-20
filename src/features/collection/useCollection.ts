@@ -30,7 +30,16 @@ export interface CollectionEntry {
   continent: string | null
   /** KM de la moneda o, si no tiene, su número Yeoman (Y#). */
   reference: CatalogueReference | null
+  /** Año tal como está en la moneda, en su propio calendario. */
   issueYear: number | null
+  /**
+   * El mismo año en el calendario gregoriano. Numista lo trae convertido para
+   * las monedas hebreas, islámicas, budistas o de era imperial: una israelí
+   * fechada 5745 es de 1985. Es el año con el que hay que contar y ordenar.
+   */
+  gregorianYear: number | null
+  /** Letra de ceca de la emisión: junto al año determina el precio. */
+  mintLetter: string | null
   thumbnail: string | null
   /** La otra cara, para mostrarla al pasar el puntero. Null si no hay foto. */
   thumbnailBack: string | null
@@ -66,7 +75,12 @@ interface Row {
     obverse_thumbnail: string | null
     reverse_thumbnail: string | null
   }
-  coins_issues: { year: number | null; refs: NumistaReference[] | null } | null
+  coins_issues: {
+    year: number | null
+    gregorian_year: number | null
+    mint_letter: string | null
+    refs: NumistaReference[] | null
+  } | null
 }
 
 export function useCollection() {
@@ -90,7 +104,7 @@ export function useCollection() {
             composition_text, size, weight,
             obverse_thumbnail, reverse_thumbnail
           ),
-          coins_issues ( year, refs:raw->references )
+          coins_issues ( year, gregorian_year, mint_letter, refs:raw->references )
         `)
         .order('created_at', { ascending: false })
 
@@ -123,6 +137,10 @@ export function useCollection() {
         // específica cuando existe.
         reference: preferredReference(row.coins_issues?.refs, row.coins_types.refs),
         issueYear: row.coins_issues?.year ?? null,
+        // Numista sólo trae `gregorian_year` cuando hace falta convertir; en
+        // las monedas con calendario gregoriano es el mismo año.
+        gregorianYear: row.coins_issues?.gregorian_year ?? row.coins_issues?.year ?? null,
+        mintLetter: row.coins_issues?.mint_letter ?? null,
         // Se muestra el reverso: en buena parte de las monedas es la cara
         // con el motivo distintivo, mientras el anverso repite el mismo busto
         // en toda una serie. Numista no siempre tiene foto de reverso, así

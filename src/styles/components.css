@@ -154,7 +154,8 @@
 .select {
   appearance: none;
   /* Flecha dibujada en CSS: sin dependencia de íconos. */
-  background-image: linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
     linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
   background-position:
     calc(100% - 18px) calc(50% + 2px),
@@ -968,7 +969,7 @@
 
 /* El continente elegido se pinta como el botón de agregar de la barra: es la
    misma idea de "acción en dorado macizo" en las dos puntas de la pantalla. */
-.continent-filter__option[aria-pressed='true'] {
+.continent-filter__option[aria-pressed="true"] {
   border-color: transparent;
   background: linear-gradient(180deg, var(--gold-bright), var(--gold));
   color: #241a0a;
@@ -979,7 +980,7 @@
   font-size: 12px;
 }
 
-.continent-filter__option[aria-pressed='true'] .continent-filter__count {
+.continent-filter__option[aria-pressed="true"] .continent-filter__count {
   color: rgb(36 26 10 / 70%);
 }
 
@@ -1131,7 +1132,6 @@
   transform: translateY(-50%);
 }
 
-
 .coin-grid--list .coin-card__body {
   padding-block: var(--space-2);
   /* Deja libre la franja de los dos botones de la derecha. */
@@ -1263,6 +1263,7 @@
 }
 
 .detail__subtitle {
+  margin-bottom: var(--space-3);
   font-size: 17px;
 }
 
@@ -1640,7 +1641,7 @@ a.tally:hover {
      países demasiado angosta para leerlos. */
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 0.5fr 1fr 1fr;
   gap: var(--space-3);
 }
 

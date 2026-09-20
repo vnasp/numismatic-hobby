@@ -1,6 +1,7 @@
 import { normalizeForSearch } from '../../../shared/numista/normalize'
 import { formatReference } from '../../../shared/numista/references'
 import { GRADES, type GradeCode } from '../../lib/grades'
+import { materialFamily } from '../../lib/materials'
 import type { CollectionEntry } from './useCollection'
 
 export interface CountryTally {
@@ -158,8 +159,9 @@ function compareReference(a: CollectionEntry, b: CollectionEntry): number {
   )
 }
 
+/** Siempre por el año gregoriano: 5745 y 1985 son la misma moneda. */
 function compareYear(a: CollectionEntry, b: CollectionEntry): number {
-  return nullsLast(a.issueYear, b.issueYear, (x, y) => x - y)
+  return nullsLast(a.gregorianYear, b.gregorianYear, (x, y) => x - y)
 }
 
 /**
@@ -232,6 +234,37 @@ export function unvaluedCount(entries: CollectionEntry[]): number {
   return entries.filter((entry) => !entry.value).length
 }
 
+
+/** Material sin registrar en el catálogo de Numista. */
+const UNKNOWN_MATERIAL = 'Sin especificar'
+
+/**
+ * Reparto por familia de material, de la más presente a la menos.
+ *
+ * Agrupa por familia de limpieza y no por la composición exacta de Numista:
+ * el criterio, incluida la regla de que una moneda chapada se limpia por su
+ * capa y no por su núcleo, vive en `materialFamily`.
+ */
+export function materialTallies(entries: CollectionEntry[]): Tally[] {
+  const counts = new Map<string, number>()
+
+  for (const entry of entries) {
+    const familia = materialFamily(entry.material) ?? UNKNOWN_MATERIAL
+    counts.set(familia, (counts.get(familia) ?? 0) + 1)
+  }
+
+  const desconocidas = counts.get(UNKNOWN_MATERIAL) ?? 0
+  counts.delete(UNKNOWN_MATERIAL)
+
+  const tallies = [...counts.entries()]
+    .sort(([aLabel, a], [bLabel, b]) => b - a || aLabel.localeCompare(bLabel, 'es'))
+    .map(([label, count]) => ({ label, count }))
+
+  if (desconocidas) tallies.push({ label: UNKNOWN_MATERIAL, count: desconocidas })
+
+  return tallies
+}
+
 /** Reparto por estado de conservación, en el orden de la escala de Numista. */
 export function gradeTallies(entries: CollectionEntry[]): Tally[] {
   const counts = new Map<GradeCode | null, number>()
@@ -250,17 +283,22 @@ export function gradeTallies(entries: CollectionEntry[]): Tally[] {
   return tallies
 }
 
-/** Reparto por década de emisión, de la más antigua a la más reciente. */
+/**
+ * Reparto por década de emisión, de la más antigua a la más reciente.
+ *
+ * Se cuenta por el año gregoriano y no por el que lleva la moneda: una
+ * israelí fechada 5745 o una egipcia 1404 caerían en décadas inventadas.
+ */
 export function decadeTallies(entries: CollectionEntry[]): Tally[] {
   const counts = new Map<number, number>()
   let undated = 0
 
   for (const entry of entries) {
-    if (entry.issueYear == null) {
+    if (entry.gregorianYear == null) {
       undated += 1
       continue
     }
-    const decade = Math.floor(entry.issueYear / 10) * 10
+    const decade = Math.floor(entry.gregorianYear / 10) * 10
     counts.set(decade, (counts.get(decade) ?? 0) + 1)
   }
 

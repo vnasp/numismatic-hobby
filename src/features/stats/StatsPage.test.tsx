@@ -25,6 +25,7 @@ function entry(overrides: Partial<CollectionEntry> = {}): CollectionEntry {
     continent: 'América',
     reference: null,
     issueYear: 1955,
+    mintLetter: null,
     thumbnail: null,
     thumbnailBack: null,
     material: null,
@@ -33,6 +34,11 @@ function entry(overrides: Partial<CollectionEntry> = {}): CollectionEntry {
     value: null,
     isFavorite: false,
     ...overrides,
+    // Por defecto el año gregoriano sigue al de la moneda: sólo los casos que
+    // prueban otros calendarios los separan a propósito.
+    gregorianYear:
+      overrides.gregorianYear ??
+      ('issueYear' in overrides ? overrides.issueYear! : 1955),
   }
 }
 
@@ -74,4 +80,17 @@ test('sin ninguna valoración no muestra la sección', () => {
   renderStats()
 
   expect(screen.queryByRole('heading', { name: 'Valoración' })).not.toBeInTheDocument()
+})
+
+test('resume la colección por material', () => {
+  entries = [
+    entry({ material: 'Cuproníquel (75% Copper, 25% Nickel)' }),
+    entry({ material: 'Cuproníquel' }),
+    entry({ material: 'Aluminio' }),
+  ]
+  renderStats()
+
+  const seccion = screen.getByRole('heading', { name: 'Por material' }).closest('section')!
+  expect(seccion).toHaveTextContent('Cuproníquel')
+  expect(seccion).toHaveTextContent('Aluminio')
 })

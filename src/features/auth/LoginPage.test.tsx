@@ -17,7 +17,7 @@ function renderLoginPage() {
     <MemoryRouter initialEntries={['/login']}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<p>Página de la colección</p>} />
+        <Route path="/coleccion" element={<p>Página de la colección</p>} />
       </Routes>
     </MemoryRouter>,
   )
@@ -151,7 +151,7 @@ test('una usuaria que se autentica abandona la página de login', async () => {
     <MemoryRouter initialEntries={['/login']}>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/" element={<p>Página de la colección</p>} />
+        <Route path="/coleccion" element={<p>Página de la colección</p>} />
       </Routes>
     </MemoryRouter>,
   )

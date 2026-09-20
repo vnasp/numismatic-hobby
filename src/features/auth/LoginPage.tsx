@@ -65,7 +65,7 @@ export function LoginPage() {
   // ya autenticada): no hay nada que hacer aquí. Se espera a que `loading`
   // resuelva para no redirigir antes de saber si hay sesión.
   if (!loading && session) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/coleccion" replace />
   }
 
   async function handleSubmit(e: FormEvent) {

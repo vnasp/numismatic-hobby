@@ -9,6 +9,7 @@ import { CountriesPage } from './features/countries/CountriesPage'
 import { CatalogSearchPage } from './features/catalog/CatalogSearchPage'
 import { StatsPage } from './features/stats/StatsPage'
 import { AddCoinPage } from './features/add-coin/AddCoinPage'
+import { PublicCollectionPage } from './features/public/PublicCollectionPage'
 
 const queryClient = new QueryClient()
 
@@ -20,6 +21,13 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<LoginPage />} />
 
+            {/* La vitrina abierta: sin sesión y en modo lectura. Vive en la
+                raíz porque es lo que corresponde mostrarle a quien llega al
+                dominio pelado, y también en /vnasp, que es el enlace que se
+                comparte. La parte privada entra por /login. */}
+            <Route path="/" element={<PublicCollectionPage />} />
+            <Route path="/vnasp" element={<PublicCollectionPage />} />
+
             {/* Las cuatro secciones comparten la barra de pestañas. */}
             <Route
               element={
@@ -28,7 +36,7 @@ export default function App() {
                 </RequireAuth>
               }
             >
-              <Route path="/" element={<CollectionPage />} />
+              <Route path="/coleccion" element={<CollectionPage />} />
               <Route path="/paises" element={<CountriesPage />} />
               <Route path="/buscar" element={<CatalogSearchPage />} />
               <Route path="/estadisticas" element={<StatsPage />} />

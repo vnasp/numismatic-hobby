@@ -2,7 +2,7 @@ import { NavLink, Link } from 'react-router-dom'
 import { CoinsIcon, GlobeIcon, SearchIcon, ChartIcon, PlusIcon } from './icons'
 
 const TABS = [
-  { to: '/', label: 'Colección', Icon: CoinsIcon },
+  { to: '/coleccion', label: 'Colección', Icon: CoinsIcon },
   { to: '/paises', label: 'Países', Icon: GlobeIcon },
   { to: '/buscar', label: 'Buscar', Icon: SearchIcon },
   { to: '/estadisticas', label: 'Estadísticas', Icon: ChartIcon },
@@ -19,9 +19,7 @@ export function TabBar() {
           <li key={to}>
             <NavLink
               to={to}
-              // `end` sólo en la raíz: sin él, "/" quedaría activa en todas
-              // las rutas porque todas empiezan por "/".
-              end={to === '/'}
+              end
               className={({ isActive }) =>
                 `tabbar__tab${isActive ? ' tabbar__tab--active' : ''}`
               }
@@ -44,7 +42,7 @@ export function TabBar() {
           <li key={to}>
             <NavLink
               to={to}
-              end={to === '/'}
+              end
               className={({ isActive }) =>
                 `tabbar__tab${isActive ? ' tabbar__tab--active' : ''}`
               }

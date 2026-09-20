@@ -6,6 +6,7 @@ import {
   decadeTallies,
   findDuplicate,
   sortEntries,
+  materialTallies,
   unvaluedCount,
   valueTotals,
 } from './collectionData'
@@ -23,6 +24,7 @@ function entry(overrides: Partial<CollectionEntry> = {}): CollectionEntry {
     continent: 'América',
     reference: { code: 'KM', number: '179a' },
     issueYear: 1955,
+    mintLetter: null,
     thumbnail: null,
     thumbnailBack: null,
     material: null,
@@ -31,6 +33,11 @@ function entry(overrides: Partial<CollectionEntry> = {}): CollectionEntry {
     value: null,
     isFavorite: false,
     ...overrides,
+    // Por defecto el año gregoriano sigue al de la moneda: sólo los casos que
+    // prueban otros calendarios los separan a propósito.
+    gregorianYear:
+      overrides.gregorianYear ??
+      ('issueYear' in overrides ? overrides.issueYear! : 1955),
   }
 }
 
@@ -311,5 +318,56 @@ describe('valueTotals y unvaluedCount', () => {
       entry({ value: null }),
     ]
     expect(unvaluedCount(entries)).toBe(2)
+  })
+})
+
+
+describe('materialTallies', () => {
+  test('cuenta por familia de limpieza, del más presente al menos', () => {
+    const result = materialTallies([
+      // El acero chapado se limpia como latón: la capa es lo que se toca.
+      entry({ material: 'Acero chapado en latón' }),
+      entry({ material: 'Latón de níquel' }),
+      entry({ material: 'Acero inoxidable' }),
+      entry({ material: 'Bronce de aluminio' }),
+      entry({ material: null }),
+    ])
+
+    expect(result).toEqual([
+      { label: 'Latón', count: 2 },
+      { label: 'Acero y hierro', count: 1 },
+      { label: 'Cobre y bronce', count: 1 },
+      { label: 'Sin especificar', count: 1 },
+    ])
+  })
+})
+
+describe('decadeTallies con otros calendarios', () => {
+  test('cuenta por el año gregoriano y no por el de la moneda', () => {
+    const result = decadeTallies([
+      // Israel 5745 y Egipto 1404 son las dos de los años ochenta.
+      entry({ issueYear: 5745, gregorianYear: 1985 }),
+      entry({ issueYear: 1404, gregorianYear: 1984 }),
+      entry({ issueYear: 1955, gregorianYear: 1955 }),
+    ])
+
+    expect(result).toEqual([
+      { label: '1950s', count: 1 },
+      { label: '1980s', count: 2 },
+    ])
+  })
+})
+
+describe('sortEntries por año en otros calendarios', () => {
+  test('ordena por el año gregoriano', () => {
+    const result = sortEntries(
+      [
+        entry({ title: 'Israel', issuerName: 'Israel', issueYear: 5745, gregorianYear: 1985 }),
+        entry({ title: 'Chile', issuerName: 'Israel', issueYear: 1955, gregorianYear: 1955 }),
+      ],
+      'anio',
+    )
+
+    expect(result.map((e) => e.title)).toEqual(['Chile', 'Israel'])
   })
 })
