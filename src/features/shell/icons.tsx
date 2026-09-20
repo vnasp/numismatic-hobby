@@ -167,6 +167,14 @@ export function ChevronDownIcon(props: IconProps) {
   )
 }
 
+export function ChevronLeftIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="m15 5-7 7 7 7" />
+    </Icon>
+  )
+}
+
 export function ChevronRightIcon(props: IconProps) {
   return (
     <Icon {...props}>
