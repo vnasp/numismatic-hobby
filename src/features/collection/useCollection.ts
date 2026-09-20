@@ -83,8 +83,18 @@ interface Row {
   } | null
 }
 
-export function useCollection() {
+/**
+ * `enabled: false` deja la consulta sin disparar.
+ *
+ * Lo necesita la pantalla de estadísticas, que es una sola para las dos
+ * mitades de la app: llama a los dos hooks —no se puede llamar a uno u otro
+ * según la sesión, que es la regla de los hooks— y apaga el que no
+ * corresponde. Sin esto, quien llega sin sesión pediría `coins_items` y se
+ * comería un error de permisos.
+ */
+export function useCollection({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
+    enabled,
     queryKey: ['collection'],
     queryFn: async (): Promise<CollectionEntry[]> => {
       const { data, error } = await supabase

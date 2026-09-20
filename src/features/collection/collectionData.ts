@@ -16,7 +16,7 @@ export interface Tally {
 }
 
 /** Emisor sin nombre en el catálogo: se agrupa aparte en vez de perderse. */
-const UNKNOWN_COUNTRY = 'Sin país'
+export const UNKNOWN_COUNTRY = 'Sin país'
 
 /**
  * Países presentes en la colección, del más representado al menos. A igual
@@ -236,7 +236,7 @@ export function unvaluedCount(entries: CollectionEntry[]): number {
 
 
 /** Material sin registrar en el catálogo de Numista. */
-const UNKNOWN_MATERIAL = 'Sin especificar'
+export const UNKNOWN_MATERIAL = 'Sin especificar'
 
 /**
  * Reparto por familia de material, de la más presente a la menos.
@@ -266,7 +266,7 @@ export function materialTallies(entries: CollectionEntry[]): Tally[] {
 }
 
 /** Moneda sin diámetro registrado en el catálogo de Numista. */
-const UNKNOWN_DIAMETER = 'Sin diámetro'
+export const UNKNOWN_DIAMETER = 'Sin diámetro'
 
 /**
  * Ventanas de los cartones de 2×2 pulgadas que se venden por acá, en mm.
@@ -276,11 +276,27 @@ const UNKNOWN_DIAMETER = 'Sin diámetro'
  * milímetro exacto, que daría una lista de cincuenta filas de una moneda cada
  * una y no serviría para saber cuántos cartones comprar de cada tamaño.
  */
-const CARTONES = [15, 17.5, 20, 22.5, 25, 27.5, 30, 32.5, 35, 37.5, 39.5]
+export const CARTONES = [15, 17.5, 20, 22.5, 25, 27.5, 30, 32.5, 35, 37.5, 39.5]
+
+/** Etiqueta del grupo al que van las monedas más grandes que el último cartón. */
+export const OVERSIZE_CARTON = `Más de ${formatMm(CARTONES[CARTONES.length - 1])}`
 
 /** Milímetros en español: 22,5 mm. */
-function formatMm(mm: number): string {
+export function formatMm(mm: number): string {
   return `${mm.toLocaleString('es', { maximumFractionDigits: 1 })} mm`
+}
+
+/**
+ * La etiqueta de cartón que le toca a un diámetro, o null si no hay medida.
+ *
+ * Es la misma regla que usa el recuento: la ventana más chica en la que la
+ * moneda entra. Se exporta para que el filtro cruzado agrupe exactamente
+ * igual que el gráfico, y no por su cuenta.
+ */
+export function cartonFor(mm: number | null | undefined): string | null {
+  if (mm == null || mm <= 0) return null
+  const carton = CARTONES.find((ventana) => mm <= ventana)
+  return carton == null ? OVERSIZE_CARTON : formatMm(carton)
 }
 
 /**
@@ -309,6 +325,7 @@ export function diameterTallies(entries: CollectionEntry[]): Tally[] {
     counts.set(carton, (counts.get(carton) ?? 0) + 1)
   }
 
+
   // Si ninguna moneda trae la medida, la sección entera sobra: una fila que
   // dice "Sin diámetro: 527" no es una estadística.
   if (counts.size === 0 && grandes === 0) return []
@@ -318,7 +335,7 @@ export function diameterTallies(entries: CollectionEntry[]): Tally[] {
     .map(([carton, count]) => ({ label: formatMm(carton), count }))
 
   if (grandes) {
-    tallies.push({ label: `Más de ${formatMm(CARTONES[CARTONES.length - 1])}`, count: grandes })
+    tallies.push({ label: OVERSIZE_CARTON, count: grandes })
   }
   if (desconocidas) tallies.push({ label: UNKNOWN_DIAMETER, count: desconocidas })
 
@@ -394,4 +411,24 @@ export function findDuplicate(
         entry.numistaIssueId === candidate.numistaIssueId,
     ) ?? null
   )
+}
+
+export interface YearRange {
+  from: number
+  to: number
+}
+
+/**
+ * El año más antiguo y el más reciente de la colección, en años gregorianos.
+ *
+ * Null cuando ninguna moneda tiene fecha: un rango vacío no es "0–0", es la
+ * ausencia de rango, y quien lo muestre tiene que poder distinguirlo.
+ */
+export function yearRange(entries: CollectionEntry[]): YearRange | null {
+  const years = entries
+    .map((entry) => entry.gregorianYear)
+    .filter((year): year is number => year != null)
+
+  if (years.length === 0) return null
+  return { from: Math.min(...years), to: Math.max(...years) }
 }

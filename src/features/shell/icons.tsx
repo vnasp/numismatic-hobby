@@ -174,3 +174,14 @@ export function ChevronRightIcon(props: IconProps) {
     </Icon>
   )
 }
+
+/** Flecha hacia una bandeja: descargar. */
+export function DownloadIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M12 3v11" />
+      <path d="m7.5 10.5 4.5 4.5 4.5-4.5" />
+      <path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17" />
+    </Icon>
+  )
+}
