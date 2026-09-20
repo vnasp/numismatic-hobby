@@ -265,6 +265,66 @@ export function materialTallies(entries: CollectionEntry[]): Tally[] {
   return tallies
 }
 
+/** Moneda sin diámetro registrado en el catálogo de Numista. */
+const UNKNOWN_DIAMETER = 'Sin diámetro'
+
+/**
+ * Ventanas de los cartones de 2×2 pulgadas que se venden por acá, en mm.
+ *
+ * Son las medidas estándar: una moneda entra en la ventana más chica que sea
+ * igual o mayor que su diámetro. Por eso se agrupa por ventana y no por
+ * milímetro exacto, que daría una lista de cincuenta filas de una moneda cada
+ * una y no serviría para saber cuántos cartones comprar de cada tamaño.
+ */
+const CARTONES = [15, 17.5, 20, 22.5, 25, 27.5, 30, 32.5, 35, 37.5, 39.5]
+
+/** Milímetros en español: 22,5 mm. */
+function formatMm(mm: number): string {
+  return `${mm.toLocaleString('es', { maximumFractionDigits: 1 })} mm`
+}
+
+/**
+ * Reparto por tamaño de cartón, de la ventana más chica a la más grande.
+ *
+ * No va ordenado por cantidad como los demás: es una escala, y leerla en
+ * orden es lo que permite anotar la lista de compras. Lo que no cabe en el
+ * cartón más grande y lo que no tiene diámetro registrado van al final.
+ */
+export function diameterTallies(entries: CollectionEntry[]): Tally[] {
+  const counts = new Map<number, number>()
+  let grandes = 0
+  let desconocidas = 0
+
+  for (const entry of entries) {
+    const mm = entry.diameterMm
+    if (mm == null || mm <= 0) {
+      desconocidas += 1
+      continue
+    }
+    const carton = CARTONES.find((ventana) => mm <= ventana)
+    if (carton == null) {
+      grandes += 1
+      continue
+    }
+    counts.set(carton, (counts.get(carton) ?? 0) + 1)
+  }
+
+  // Si ninguna moneda trae la medida, la sección entera sobra: una fila que
+  // dice "Sin diámetro: 527" no es una estadística.
+  if (counts.size === 0 && grandes === 0) return []
+
+  const tallies: Tally[] = [...counts.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([carton, count]) => ({ label: formatMm(carton), count }))
+
+  if (grandes) {
+    tallies.push({ label: `Más de ${formatMm(CARTONES[CARTONES.length - 1])}`, count: grandes })
+  }
+  if (desconocidas) tallies.push({ label: UNKNOWN_DIAMETER, count: desconocidas })
+
+  return tallies
+}
+
 /** Reparto por estado de conservación, en el orden de la escala de Numista. */
 export function gradeTallies(entries: CollectionEntry[]): Tally[] {
   const counts = new Map<GradeCode | null, number>()

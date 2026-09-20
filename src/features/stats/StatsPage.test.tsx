@@ -94,3 +94,20 @@ test('resume la colección por material', () => {
   expect(seccion).toHaveTextContent('Cuproníquel')
   expect(seccion).toHaveTextContent('Aluminio')
 })
+
+test('resume la colección por diámetro, agrupada por tamaño de cartón', () => {
+  entries = [entry({ diameterMm: 19.4 }), entry({ diameterMm: 20 }), entry({ diameterMm: 25.5 })]
+  renderStats()
+
+  const seccion = screen.getByRole('heading', { name: 'Por diámetro' }).closest('section')!
+  expect(seccion).toHaveTextContent('20 mm')
+  expect(seccion).toHaveTextContent('27,5 mm')
+})
+
+test('sin ningún diámetro registrado no muestra la sección', () => {
+  entries = [entry({ diameterMm: null })]
+  renderStats()
+
+  // Lo único que quedaría por mostrar es "Sin diámetro", que no informa nada.
+  expect(screen.queryByRole('heading', { name: 'Por diámetro' })).not.toBeInTheDocument()
+})

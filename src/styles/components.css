@@ -1557,6 +1557,15 @@ a.tally:hover {
   margin-bottom: var(--space-3);
 }
 
+/* Una línea bajo el título para explicar cómo se agrupó lo que viene. */
+.stats__hint {
+  margin-top: calc(var(--space-2) * -1);
+  margin-bottom: var(--space-3);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
 /* =========================================================================
    Flujo de agregar: barra, pasos y encabezados de sección
    ========================================================================= */

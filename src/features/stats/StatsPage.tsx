@@ -4,6 +4,7 @@ import { PageHeader } from '../shell/PageHeader'
 import {
   countryTallies,
   decadeTallies,
+  diameterTallies,
   gradeTallies,
   materialTallies,
   unvaluedCount,
@@ -13,13 +14,23 @@ import {
 import { formatMoney } from '../../lib/money'
 import { useCollection } from '../collection/useCollection'
 
-function TallySection({ title, tallies }: { title: string; tallies: Tally[] }) {
+function TallySection({
+  title,
+  tallies,
+  hint,
+}: {
+  title: string
+  tallies: Tally[]
+  /** Una línea para explicar cómo se agrupó, cuando no es evidente. */
+  hint?: string
+}) {
   if (tallies.length === 0) return null
   const max = Math.max(...tallies.map((t) => t.count))
 
   return (
     <section className="card stats__section">
       <h2>{title}</h2>
+      {hint && <p className="stats__hint">{hint}</p>}
       <ul className="tally-list">
         {tallies.map((tally) => (
           <li key={tally.label}>
@@ -47,6 +58,7 @@ export function StatsPage() {
   const grades = useMemo(() => gradeTallies(entries), [entries])
   const decades = useMemo(() => decadeTallies(entries), [entries])
   const materials = useMemo(() => materialTallies(entries), [entries])
+  const diameters = useMemo(() => diameterTallies(entries), [entries])
   const favorites = useMemo(() => entries.filter((e) => e.isFavorite).length, [entries])
   const totals = useMemo(() => valueTotals(entries), [entries])
   const unvalued = useMemo(() => unvaluedCount(entries), [entries])
@@ -116,6 +128,11 @@ export function StatsPage() {
           <TallySection title="Por país" tallies={countries.map((c) => ({ label: c.name, count: c.count }))} />
           <TallySection title="Por década" tallies={decades} />
           <TallySection title="Por material" tallies={materials} />
+          <TallySection
+            title="Por diámetro"
+            tallies={diameters}
+            hint="Cada moneda cuenta en la ventana de cartón más chica en la que entra."
+          />
           <TallySection title="Por conservación" tallies={grades} />
         </>
       )}
