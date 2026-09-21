@@ -89,11 +89,26 @@ export function searchByKm(
   });
 }
 
-export function searchCatalogue(params: {
+export interface CatalogueSearchParams {
   issuer?: string;
   q?: string;
-  year?: string;
-}): Promise<NumistaSearchResult> {
+  /** Año tal como está escrito en la moneda. */
+  year?: string | number;
+  /** Año gregoriano de emisión, o un rango: `1900-2026`. */
+  date?: string;
+  /** Deja sólo los tipos que tienen número en ese catálogo. */
+  catalogue?: CatalogueCode;
+  /** Tipo de objeto: 1 son las monedas de circulación estándar. */
+  objectType?: number;
+  page?: number;
+  /** Resultados por página. El proxy lo recorta al tope de 100 de la API. */
+  count?: number;
+  order?: "value" | "ruler" | "type" | "reference" | "date" | "relevance";
+}
+
+export function searchCatalogue(
+  params: CatalogueSearchParams,
+): Promise<NumistaSearchResult> {
   // El Edge Function descarta `year` si no llega como string
   // (`typeof body.year === 'string'`), así que se fuerza aquí en runtime
   // en vez de confiar solo en el tipo estático.
@@ -105,8 +120,83 @@ export function searchCatalogue(params: {
   });
 }
 
+/**
+ * Una página del catálogo de un emisor, acotada a un período y a un
+ * catálogo de referencia.
+ *
+ * Es el primero de los dos pasos que hacen falta para armar una lista por
+ * número KM: esto dice *qué tipos existen*, pero no qué número le toca a
+ * cada uno —el listado de la API no trae las referencias—, así que después
+ * hay que pedir el detalle de cada tipo con `getTypeWithIssues`.
+ *
+ * Pide de a 100, que es el tope: recorrer Chile desde 1900 cuesta así dos
+ * llamadas de listado en vez de veinte.
+ */
+export function browseIssuer(params: {
+  issuer: string;
+  /** Un año o un rango: `1900-2026`. */
+  date: string;
+  catalogue?: CatalogueCode;
+  objectType?: number;
+  page?: number;
+}): Promise<NumistaSearchResult> {
+  return searchCatalogue({
+    ...params,
+    issuer: params.issuer.trim().toLowerCase(),
+    catalogue: params.catalogue ?? "KM",
+    count: 100,
+    // Ordenado por número de catálogo: es el orden en que se va a leer la
+    // tabla, y deja las páginas estables entre corridas.
+    order: "reference",
+  });
+}
+
 export function getTypeWithIssues(
   typeId: number,
 ): Promise<{ type: NumistaType; issues: NumistaIssue[] }> {
   return callProxy({ op: "getType", typeId });
+}
+
+export interface MetaListResult {
+  meta: string;
+  /** Cuántos tipos dice Numista que hay en total. */
+  total: number;
+  imported: number;
+  pages: number;
+}
+
+/**
+ * Fase 1 de una meta: trae el listado completo desde Numista.
+ *
+ * Son pocas llamadas porque pide de a 100. No trae los números de
+ * catálogo —el listado de Numista no los incluye— pero sí el universo, que
+ * es lo que permite contar cuántas faltan.
+ */
+export function importMetaList(meta: string): Promise<MetaListResult> {
+  return callProxy({ op: "importMetaList", meta });
+}
+
+export interface MetaDetailsResult {
+  meta: string;
+  fetched: number;
+  /** Tipos cuyo detalle no se pudo bajar; se saltan para no trancar. */
+  failed: number[];
+  remaining: number;
+  /** La cuota mensual se acabó: lo bajado quedó guardado. */
+  quotaReached: boolean;
+}
+
+/**
+ * Fase 2 de una meta: baja el detalle de un lote de tipos.
+ *
+ * Va por lotes porque son decenas de llamadas y cada Edge Function tiene
+ * su límite de tiempo. Hay que seguir llamando mientras `remaining` no
+ * llegue a cero —y cortar si `fetched` da cero, que significa que lo que
+ * queda no se puede bajar.
+ */
+export function fillMetaDetails(
+  meta: string,
+  batch = 10,
+): Promise<MetaDetailsResult> {
+  return callProxy({ op: "fillMetaDetails", meta, batch });
 }

@@ -4,9 +4,11 @@ import { AccountMenu } from '../shell/AccountMenu'
 import { PageHeader } from '../shell/PageHeader'
 import { countryTallies } from '../collection/collectionData'
 import { useCollection } from '../collection/useCollection'
+import { useMetas } from '../metas/useMetas'
 
 export function CountriesPage() {
   const { data, isLoading, error } = useCollection()
+  const { data: metas } = useMetas()
   const countries = useMemo(() => countryTallies(data ?? []), [data])
 
   // La barra de cada país se mide contra el país más representado, no contra
@@ -23,6 +25,21 @@ export function CountriesPage() {
           action={<AccountMenu />}
         />
       </div>
+
+      {/* Las metas van antes que el recuento: son lo que se persigue, y el
+          recuento es lo que ya se tiene. */}
+      {metas && metas.length > 0 && (
+        <ul className="meta-links">
+          {metas.map((meta) => (
+            <li key={meta.slug}>
+              <Link className="meta-link" to={`/metas/${meta.slug}`}>
+                <span className="meta-link__name">{meta.name}</span>
+                <span className="meta-link__hint">Ver qué falta</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {isLoading && <p className="notice">Cargando colección…</p>}
       {error && (

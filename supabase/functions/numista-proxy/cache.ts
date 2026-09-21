@@ -158,3 +158,115 @@ export async function writeCachedIssuers(
     }
   }
 }
+
+// --- Metas de colección -----------------------------------------------------
+
+export interface MetaRow {
+  slug: string;
+  issuer_code: string;
+  catalogue_code: string;
+  from_year: number | null;
+  to_year: number | null;
+  counted_object_types: string[];
+}
+
+export async function readMeta(
+  db: SupabaseClient,
+  slug: string,
+): Promise<MetaRow | null> {
+  const { data } = await db
+    .from("coins_metas")
+    .select("slug, issuer_code, catalogue_code, from_year, to_year, counted_object_types")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  return (data as MetaRow | null) ?? null;
+}
+
+/**
+ * Guarda el listado de una meta.
+ *
+ * Es un upsert y no un borrar-e-insertar: si Numista agrega un tipo, la
+ * reimportación lo suma sin dejar la tabla vacía en el intermedio. Los
+ * tipos que Numista *quitara* quedarían de más, que es el error inofensivo
+ * de los dos.
+ */
+export async function writeMetaTypes(
+  db: SupabaseClient,
+  metaSlug: string,
+  types: {
+    id: number;
+    title: string;
+    object_type?: { id: string; name: string };
+    min_year?: number;
+    max_year?: number;
+    obverse_thumbnail?: string;
+    reverse_thumbnail?: string;
+  }[],
+): Promise<void> {
+  if (types.length === 0) return;
+
+  const { error } = await db.from("coins_meta_types").upsert(
+    types.map((type) => ({
+      meta_slug: metaSlug,
+      numista_id: type.id,
+      title: type.title,
+      object_type_id: type.object_type?.id ?? null,
+      object_type_name: type.object_type?.name ?? null,
+      min_year: type.min_year ?? null,
+      max_year: type.max_year ?? null,
+      obverse_thumbnail: type.obverse_thumbnail ?? null,
+      reverse_thumbnail: type.reverse_thumbnail ?? null,
+    })),
+  );
+
+  if (error) throw new Error(`No se pudo guardar el listado: ${error.message}`);
+}
+
+export async function touchMetaListed(
+  db: SupabaseClient,
+  slug: string,
+): Promise<void> {
+  await db
+    .from("coins_metas")
+    .update({ listed_at: new Date().toISOString() })
+    .eq("slug", slug);
+}
+
+/**
+ * Los tipos de la meta que cuentan para el avance y todavía no tienen su
+ * detalle en la caché.
+ *
+ * Son los que le faltan a la segunda fase. Se calcula en cada llamada
+ * contra lo que hay en `coins_types`, así que la importación es reanudable
+ * sin llevar ningún cursor: si se corta a la mitad, la siguiente corrida
+ * pide exactamente lo que quedó pendiente.
+ */
+export async function pendingMetaTypeIds(
+  db: SupabaseClient,
+  meta: MetaRow,
+  limit: number,
+): Promise<{ ids: number[]; remaining: number }> {
+  let query = db
+    .from("coins_meta_types")
+    .select("numista_id", { count: "exact" })
+    .eq("meta_slug", meta.slug);
+
+  if (meta.counted_object_types.length > 0) {
+    query = query.in("object_type_name", meta.counted_object_types);
+  }
+
+  const { data: counted } = await query;
+  const wanted = (counted ?? []).map((row) => row.numista_id as number);
+  if (wanted.length === 0) return { ids: [], remaining: 0 };
+
+  const { data: cached } = await db
+    .from("coins_types")
+    .select("numista_id")
+    .in("numista_id", wanted);
+
+  const have = new Set((cached ?? []).map((row) => row.numista_id as number));
+  const pending = wanted.filter((id) => !have.has(id));
+
+  return { ids: pending.slice(0, limit), remaining: pending.length };
+}

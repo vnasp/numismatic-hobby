@@ -6,6 +6,7 @@ import { LoginPage } from './features/auth/LoginPage'
 import { AppShell } from './features/shell/AppShell'
 import { CollectionPage } from './features/collection/CollectionPage'
 import { CountriesPage } from './features/countries/CountriesPage'
+import { MetaPage } from './features/metas/MetaPage'
 import { CatalogSearchPage } from './features/catalog/CatalogSearchPage'
 import { StatsPage, StatsShell } from './features/stats/StatsPage'
 import { AddCoinPage } from './features/add-coin/AddCoinPage'
@@ -49,6 +50,7 @@ export default function App() {
               <Route path="/coleccion" element={<CollectionPage />} />
               <Route path="/paises" element={<CountriesPage />} />
               <Route path="/buscar" element={<CatalogSearchPage />} />
+              <Route path="/metas/:slug" element={<MetaPage />} />
             </Route>
 
             {/* Agregar queda fuera del armazón con pestañas: es un flujo con
