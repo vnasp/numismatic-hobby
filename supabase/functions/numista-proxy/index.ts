@@ -282,9 +282,10 @@ Deno.serve(async (req) => {
       /**
        * Fase 2: baja el detalle de los tipos que cuentan para la meta.
        *
-       * Va de a lotes y no de una: son ~77 llamadas y cada Edge Function
-       * tiene su propio límite de tiempo. El cliente vuelve a llamar
-       * mientras queden pendientes.
+       * Una llamada por tipo, no dos: acá interesa el número de catálogo y
+       * no las emisiones. Va de a lotes porque son decenas de llamadas y
+       * cada Edge Function tiene su propio límite de tiempo; el cliente
+       * vuelve a llamar mientras queden pendientes.
        *
        * Reanudable sin cursor: lo pendiente se recalcula cada vez contra
        * lo que ya está en `coins_types`. Si la cuota se acaba a la mitad,
@@ -310,11 +311,19 @@ Deno.serve(async (req) => {
 
         for (const typeId of ids) {
           try {
-            const [type, issues] = await Promise.all([
-              api.getType(typeId),
-              api.getIssues(typeId),
-            ]);
-            await writeCachedType(db, type, issues);
+            // Sólo el tipo, no sus emisiones: la meta necesita el número de
+            // catálogo, y ése vive en el tipo. Pedir además las emisiones
+            // duplicaría el costo para traer los años de monedas que puede
+            // que nunca se tengan.
+            //
+            // El precio es que `readCachedType` considera fallo de caché un
+            // tipo con cero emisiones, así que la primera vez que se abra
+            // uno de éstos para agregar una moneda se va a repedir entero.
+            // Es el intercambio correcto: esa llamada se paga sólo por las
+            // que efectivamente se consiguen, y se pagaría igual al
+            // agregarlas.
+            const type = await api.getType(typeId);
+            await writeCachedType(db, type, []);
             fetched += 1;
           } catch (err) {
             // La cuota se acabó: se corta el lote pero se responde 200 con

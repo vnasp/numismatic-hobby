@@ -76,7 +76,7 @@ export function MetaImport({ meta }: { meta: Meta }) {
           setEstado({
             corriendo: false,
             mensaje: null,
-            error: `Se acabó la cuota de Numista. Alcanzaron a bajarse ${bajados}; vuelve el mes que viene y sigue donde quedó.`,
+            error: `Se acabó la cuota mensual de Numista. Alcanzaron a bajarse ${bajados} y quedan ${result.remaining}. Lo bajado está guardado: cuando la cuota se renueve, vuelve acá y sigue donde quedó.`,
           })
           return
         }
@@ -120,7 +120,8 @@ export function MetaImport({ meta }: { meta: Meta }) {
           <p className="meta-import__text">
             Falta el número de catálogo de {meta.pendingDetail}{' '}
             {meta.pendingDetail === 1 ? 'tipo' : 'tipos'}. El listado de Numista no lo
-            trae, así que hay que pedir cada uno por separado.
+            trae, así que hay que pedir cada uno por separado. Es una llamada
+            por tipo.
           </p>
         )
       )}
