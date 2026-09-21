@@ -9,7 +9,14 @@ export interface MetaType {
   title: string
   minYear: number | null
   maxYear: number | null
-  thumbnail: string | null
+  /**
+   * La ficha del tipo en Numista, tal como la devuelve la API.
+   *
+   * No se arma concatenando el id: la forma de la URL es cosa de Numista y
+   * ya viene en la respuesta del detalle. Los tipos sin detalle bajado no
+   * la tienen todavía, y por eso es nullable.
+   */
+  url: string | null
   /** Si hay al menos un ejemplar de este tipo en la colección. */
   owned: boolean
   /** Si ya se bajó su detalle, que es de donde sale el número. */
@@ -29,6 +36,8 @@ export interface MetaSlot {
   reference: string | null
   types: MetaType[]
   owned: boolean
+  /** La ficha en Numista a la que lleva la casilla, si ya se conoce. */
+  url: string | null
 }
 
 export interface Meta {
@@ -71,6 +80,7 @@ interface MetaTypeRow {
 interface CachedTypeRow {
   numista_id: number
   refs: NumistaReference[] | null
+  url: string | null
 }
 
 /**
@@ -138,13 +148,13 @@ export function useMeta(slug: string) {
       // se muestra tal cual en vez de inventarlo.
       const { data: cachedRows } = await supabase
         .from('coins_types')
-        .select('numista_id, refs:raw->references')
+        .select('numista_id, refs:raw->references, url:raw->>url')
         .in('numista_id', ids)
 
-      const refs = new Map(
+      const cached = new Map(
         ((cachedRows ?? []) as unknown as CachedTypeRow[]).map((row) => [
           row.numista_id,
-          preferredReference(row.refs ?? undefined),
+          { reference: preferredReference(row.refs ?? undefined), url: row.url },
         ]),
       )
 
@@ -161,11 +171,11 @@ export function useMeta(slug: string) {
       let pendingDetail = 0
 
       for (const row of counted) {
-        const reference = refs.get(row.numista_id)
-        const detailed = refs.has(row.numista_id)
+        const detail = cached.get(row.numista_id)
+        const detailed = cached.has(row.numista_id)
         if (!detailed) pendingDetail += 1
 
-        const label = reference ? formatReference(reference) : null
+        const label = detail?.reference ? formatReference(detail.reference) : null
         const key = label ?? `sin-detalle-${row.numista_id}`
 
         const type: MetaType = {
@@ -173,7 +183,7 @@ export function useMeta(slug: string) {
           title: row.title,
           minYear: row.min_year,
           maxYear: row.max_year,
-          thumbnail: row.reverse_thumbnail ?? row.obverse_thumbnail,
+          url: detail?.url ?? null,
           owned: owned.has(row.numista_id),
           detailed,
         }
@@ -182,8 +192,15 @@ export function useMeta(slug: string) {
         if (slot) {
           slot.types.push(type)
           slot.owned ||= type.owned
+          // La casilla lleva a la primera de sus variantes que tenga ficha.
+          slot.url ??= type.url
         } else {
-          slots.set(key, { reference: label, types: [type], owned: type.owned })
+          slots.set(key, {
+            reference: label,
+            types: [type],
+            owned: type.owned,
+            url: type.url,
+          })
         }
       }
 

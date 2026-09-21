@@ -2495,16 +2495,26 @@ a.tally:hover {
 
 /* --- La grilla de casillas --- */
 
+/* Casillas chicas y muchas por fila: la pantalla es para barrer setenta y
+   siete números y ver dónde están los huecos, no para mirar monedas. Las
+   fotos viven en la colección; acá cada casilla enlaza a su ficha. */
 .meta-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* La casilla con "3 variantes" es más alta que sus vecinas; con esto todas
+   las de la fila se igualan a la más alta en vez de quedar flotando. */
 .meta-slot {
+  display: flex;
+}
+
+.meta-slot__link {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2513,46 +2523,38 @@ a.tally:hover {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--surface);
+  color: inherit;
   text-align: center;
+  text-decoration: none;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
-.meta-slot--owned {
+a.meta-slot__link:hover {
   border-color: var(--gold-line);
+  background: var(--surface-hover);
 }
 
-.meta-slot__disc {
-  display: grid;
-  place-items: center;
-  inline-size: 56px;
-  block-size: 56px;
-  margin-bottom: var(--space-2);
-}
-
-.meta-slot__disc img {
-  inline-size: 100%;
-  block-size: 100%;
-  border-radius: 50%;
-  object-fit: contain;
-}
-
-/* El hueco del cartón: un disco vacío con el borde punteado. Acá la línea
-   punteada significa algo —es literalmente lo que falta— y por eso se
-   permite, a diferencia del resto de la app. */
-.meta-slot__hole {
-  inline-size: 48px;
-  block-size: 48px;
-  border: 1px dashed var(--border-strong);
-  border-radius: 50%;
-}
-
-/* Conseguida, pero sin foto en el catálogo: disco lleno. El relleno es lo
-   que la distingue del hueco de arriba. */
-.meta-slot__blank {
-  inline-size: 48px;
-  block-size: 48px;
-  border: 1px solid var(--gold-line);
-  border-radius: 50%;
+.meta-slot--owned .meta-slot__link {
+  border-color: var(--gold-line);
   background: var(--gold-wash);
+}
+
+/* El estado no se juega sólo al color: el disco lleno es la que está, y el
+   aro hueco es el hueco del cartón. Así se lee también en blanco y negro y
+   para quien no distingue el oro del gris. */
+.meta-slot__dot {
+  inline-size: 10px;
+  block-size: 10px;
+  margin-bottom: var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 50%;
+}
+
+.meta-slot--owned .meta-slot__dot {
+  border-color: var(--gold);
+  background: var(--gold);
 }
 
 .meta-slot__ref {

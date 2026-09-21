@@ -65,8 +65,12 @@ function tipo(numista_id: number, overrides: Record<string, unknown> = {}) {
   }
 }
 
-function km(numista_id: number, number: string) {
-  return { numista_id, refs: [{ catalogue: { id: 3, code: 'KM' }, number }] }
+function km(numista_id: number, number: string, url: string | null = null) {
+  return {
+    numista_id,
+    refs: [{ catalogue: { id: 3, code: 'KM' }, number }],
+    url,
+  }
 }
 
 function renderMeta() {
@@ -188,4 +192,35 @@ test('una meta que no existe devuelve null, no un error', async () => {
   await waitFor(() => expect(result.current.isSuccess).toBe(true))
 
   expect(result.current.data).toBeNull()
+})
+
+test('la casilla lleva la ficha de Numista tal como la da la API', async () => {
+  metaTypeRows = [tipo(6920)]
+  cachedRows = [km(6920, '151', 'https://es.numista.com/6920')]
+
+  const { result } = renderMeta()
+  await waitFor(() => expect(result.current.data).toBeTruthy())
+
+  // No se arma concatenando el id: la forma de la URL es cosa de Numista.
+  expect(result.current.data!.slots[0].url).toBe('https://es.numista.com/6920')
+})
+
+test('una casilla con variantes lleva a la primera que tenga ficha', async () => {
+  metaTypeRows = [tipo(1), tipo(2)]
+  cachedRows = [km(1, '151', null), km(2, '151', 'https://es.numista.com/2')]
+
+  const { result } = renderMeta()
+  await waitFor(() => expect(result.current.data).toBeTruthy())
+
+  expect(result.current.data!.slots[0].url).toBe('https://es.numista.com/2')
+})
+
+test('sin detalle bajado no hay ficha a la que ir', async () => {
+  metaTypeRows = [tipo(1)]
+  cachedRows = []
+
+  const { result } = renderMeta()
+  await waitFor(() => expect(result.current.data).toBeTruthy())
+
+  expect(result.current.data!.slots[0].url).toBeNull()
 })

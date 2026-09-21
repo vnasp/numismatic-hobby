@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AccountMenu } from '../shell/AccountMenu'
 import { PageHeader } from '../shell/PageHeader'
@@ -23,46 +23,48 @@ function anios(slot: MetaSlot): string | null {
 /**
  * Una casilla de la meta.
  *
- * La que se tiene muestra la moneda; la que falta muestra el hueco, con su
- * número y sus años. Ese contraste es el punto de la pantalla: una grilla
- * donde todo se ve igual no dice qué falta, que es lo único que se viene a
- * mirar acá.
+ * Sin foto a propósito. La grilla es para barrer setenta y siete números y
+ * ver dónde están los huecos, y un disco de 56 px por casilla obliga a
+ * desplazarse tres pantallas para hacerlo. Lo que sí hace falta cuando una
+ * falta es poder ir a verla, y para eso está el enlace a la ficha de
+ * Numista.
+ *
+ * La que falta no se distingue sólo por el color: lleva además el aro
+ * hueco, que es el mismo hueco del cartón.
  */
 function Slot({ slot }: { slot: MetaSlot }) {
-  const [fotoRota, setFotoRota] = useState(false)
-  const conFoto = slot.types.find((type) => type.owned && type.thumbnail) ?? slot.types[0]
   const rango = anios(slot)
-  const muestraFoto = slot.owned && Boolean(conFoto?.thumbnail) && !fotoRota
+  const estado = slot.owned ? 'La tienes' : 'Te falta'
 
-  return (
-    <li className={`meta-slot${slot.owned ? ' meta-slot--owned' : ''}`}>
-      <div className="meta-slot__disc">
-        {muestraFoto ? (
-          <img
-            src={conFoto.thumbnail!}
-            alt=""
-            loading="lazy"
-            onError={() => setFotoRota(true)}
-          />
-        ) : (
-          /* Dos vacíos distintos, y la diferencia importa: el disco lleno
-             es una casilla conseguida a la que Numista no le tiene foto, y
-             el aro punteado es el hueco del cartón. Usar el mismo dibujo
-             para las dos haría contar de menos con sólo mirar. */
-          <span
-            className={slot.owned ? 'meta-slot__blank' : 'meta-slot__hole'}
-            aria-hidden="true"
-          />
-        )}
-      </div>
+  const contenido = (
+    <>
+      <span className="meta-slot__dot" aria-hidden="true" />
       <span className="meta-slot__ref">{slot.reference ?? 'Sin bajar'}</span>
       {rango && <span className="meta-slot__years">{rango}</span>}
       {slot.types.length > 1 && (
-        <span className="meta-slot__variants">
-          {slot.types.length} variantes
-        </span>
+        <span className="meta-slot__variants">{slot.types.length} variantes</span>
       )}
-      <span className="sr-only">{slot.owned ? 'La tienes' : 'Te falta'}</span>
+      <span className="sr-only">{estado}</span>
+    </>
+  )
+
+  return (
+    <li className={`meta-slot${slot.owned ? ' meta-slot--owned' : ''}`}>
+      {/* Sin ficha no hay enlace: la URL la da Numista en el detalle, y
+          armarla concatenando el id sería inventar su forma. */}
+      {slot.url ? (
+        <a
+          className="meta-slot__link"
+          href={slot.url}
+          target="_blank"
+          rel="noreferrer noopener"
+          aria-label={`${slot.reference ?? 'Sin bajar'}, ${estado.toLowerCase()}. Ver en Numista`}
+        >
+          {contenido}
+        </a>
+      ) : (
+        <div className="meta-slot__link meta-slot__link--plain">{contenido}</div>
+      )}
     </li>
   )
 }
